@@ -1,0 +1,11 @@
+base
+runjags
+sp
+Matrix
+INLA
+reshape
+lattice
+Rcpp
+unmarked
+ggplot2
+knitr
