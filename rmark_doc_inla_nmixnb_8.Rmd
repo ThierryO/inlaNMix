@@ -2,7 +2,9 @@
 title: Estimating Animal Abundance with N-Mixture Models Using the R-INLA Package for R
 author: Timothy D. Meehan^[National Audubon Society, Boulder, Colorado USA], Nicole L. Michel^[National Audubon Society, San Francisco, California USA], and Haavard Rue^[King Abdulla University of Science and Technology, Thuwal SAU]
 date: "March 31, 2017"
-output: pdf_document
+output: 
+  pdf_document: 
+    fig_caption: yes
 ---
 
 
@@ -454,19 +456,53 @@ d1 <- as.data.frame(out.inla$marginals.hyperpar$`beta[1] for NMix observations`)
 d1$x <- exp(d1$x)
 d2 <- as.data.frame(density(jags.df$intLam)[c(1,2)])
 d2$x <- exp(d2$x)
-p1 <- ggplot(data=d2, aes(x=x, y=y)) + geom_path(col="gray60", lty=1) + geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) + xlab("Lambda") + ylab(" ") + scale_y_continuous(breaks=c(3,6,9)) + theme_acbs() + geom_vline(xintercept=exp(2), col="gray20", lty=1)
+col1 <- 4
+d3 <- all.out.tab[col1, 5]
+d4 <- all.out.tab[col1, 4]
+d5 <- all.out.tab[col1, 6]
+d6 <- exp(c(d3,d4,d5))
+d7 <- data.frame(y=c(0,0,0), x=d6)
+p1 <- ggplot(data=d2, aes(x=x, y=y)) + geom_path(col="gray60", lty=1) + geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) + xlab("Lambda") + ylab(" ") + scale_y_continuous(breaks=c(3,6,9)) + theme_acbs() + geom_vline(xintercept=exp(2), col="gray20", lty=1) + 
+geom_line(data=d7, aes(y=y, x=x)) +
+geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
 # make density for x.1.lam
 d1 <- as.data.frame(out.inla$marginals.hyperpar$`beta[2] for NMix observations`)
 d2 <- as.data.frame(density(jags.df$bCov1Lam)[c(1,2)])
-p2 <- ggplot(data=d2, aes(x=x, y=y)) + geom_path(col="gray60", lty=1) + geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) + xlab("Abundance covariate 1")  + ylab("Posterior density") + theme_acbs() + geom_vline(xintercept=2, col="gray20", lty=1)
+col1 <- 5
+d3 <- all.out.tab[col1, 5]
+d4 <- all.out.tab[col1, 4]
+d5 <- all.out.tab[col1, 6]
+d6 <- c(d3,d4,d5)
+d7 <- data.frame(y=c(0,0,0), x=d6)
+p2 <- ggplot(data=d2, aes(x=x, y=y)) + geom_path(col="gray60", lty=1) + geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) + xlab("Abundance covariate 1")  + ylab("Posterior density") + theme_acbs() + geom_vline(xintercept=2, col="gray20", lty=1) + 
+geom_line(data=d7, aes(y=y, x=x)) +
+geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
 # make density for x.2.lam
 d1 <- as.data.frame(out.inla$marginals.hyperpar$`beta[3] for NMix observations`)
 d2 <- as.data.frame(density(jags.df$bCov2Lam)[c(1,2)])
-p3 <- ggplot(data=d2, aes(x=x, y=y)) + geom_path(col="gray60", lty=1) + geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) + xlab("Abundance covariate 2")  + ylab(" ") + theme_acbs() + geom_vline(xintercept=-3, col="gray20", lty=1)
+col1 <- 6
+d3 <- all.out.tab[col1, 5]
+d4 <- all.out.tab[col1, 4]
+d5 <- all.out.tab[col1, 6]
+d6 <- c(d3,d4,d5)
+d7 <- data.frame(y=c(0,0,0), x=d6)
+p3 <- ggplot(data=d2, aes(x=x, y=y)) + geom_path(col="gray60", lty=1) + geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) + xlab("Abundance covariate 2")  + ylab(" ") + theme_acbs() + 
+geom_vline(xintercept=-3, col="gray20", lty=1) + 
+geom_line(data=d7, aes(y=y, x=x)) +
+geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
 # make density for yr.lam
 d1 <- as.data.frame(out.inla$marginals.hyperpar$`beta[4] for NMix observations`)
 d2 <- as.data.frame(density(jags.df$bYr)[c(1,2)])
-p4 <- ggplot(data=d2, aes(x=x, y=y)) + geom_path(col="gray60", lty=1) + geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) + xlab("Year covariate")  + ylab(NULL) + theme_acbs() + geom_vline(xintercept=1, col="gray20", lty=1)
+col1 <- 7
+d3 <- all.out.tab[col1, 5]
+d4 <- all.out.tab[col1, 4]
+d5 <- all.out.tab[col1, 6]
+d6 <- c(d3,d4,d5)
+d7 <- data.frame(y=c(0,0,0), x=d6)
+p4 <- ggplot(data=d2, aes(x=x, y=y)) + geom_path(col="gray60", lty=1) + geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) + xlab("Year covariate")  + ylab(NULL) + theme_acbs() + 
+geom_vline(xintercept=1, col="gray20", lty=1) + 
+geom_line(data=d7, aes(y=y, x=x)) +
+geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
 # make density for intP
 d1 <- as.data.frame(out.inla$marginals.fixed$`(Intercept)`)
 d1$x <- plogis(d1$x)
@@ -633,7 +669,7 @@ par_names <- c(
 )
 to.string <- as_labeller(par_names)
 ggplot(data=sim.out, aes(x=p.b3, y=diffs, colour=simtype, linetype=simtype)) + geom_point(pch=1, size=0.5) +
-  facet_wrap(~factor(par), scales="free",labeller=to.string) +
+  facet_wrap(~factor(par), scales="fixed",labeller=to.string) +
   xlab("Slope coefficient for the detection covariate") +
   ylab("Difference between posterior mean and true parameter value") +
   geom_smooth(span=3, se=F, size=0.5) + 
