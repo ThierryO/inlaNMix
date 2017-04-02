@@ -1,0 +1,81 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage{amstext}
+\usepackage{amsmath}
+
+\begin{document}
+
+\appendix
+\section{Recursive computations of the ``NMix'' likelihood}
+
+The likelihood for the simplest case is
+\begin{displaymath}
+    \text{Prob}(y) = \sum_{n = y}^{\infty}
+    \text{Pois}(n ; \lambda) \;\times\; \text{Binom}(y;  n, p)
+\end{displaymath}
+where $\text{Poiss}(n; \lambda)$ is the density for the Poisson
+distribution with mean $\lambda$, $\lambda^{n}\exp(-\lambda)/n!$, and
+$\text{Binom}(y; n, p)$ is the density for the Binomial distribution
+with $n$ trials and probability $p$, ${n \choose y} p^{y}(1-p)^{n-p}$.
+Although the likelhood can be computed directly when replacing the
+infinite limit with a finite value, we will demonstrate here that we
+can easily evaluate it using a recursive algorithm that is both faster
+and more numerical stable. The same idea is also applicable to the
+negative Binomial case, and the case where we have replicated
+observations of the same ``$n$''. We leave it to the reader to derive
+these straight forward extentions.
+
+The key observation is that both the Poisson and the Binomial
+distribution can be evaluated recursively in $n$,
+\begin{displaymath}
+    \text{Pois}(n; \lambda) = \text{Pois}(n-1; \lambda) \frac{\lambda}{n}
+\end{displaymath}
+and
+\begin{displaymath}
+    \text{Binom}(y; n, p) = \text{Binom}(y; n-1, p) \frac{n}{n-y}(1-p),
+\end{displaymath}
+and then also for the Poisson-Binomial product
+\begin{displaymath}
+    \text{Pois}(n ; \lambda) \; \text{Binom}(y;  n, p)
+    =
+    \text{Pois}(n-1; \lambda) \; \text{Binom}(y; n-1, p)
+    \frac{\lambda}{n-y}(1-p).
+\end{displaymath}
+If we define $f_i = \lambda(1-p)/i$ for $i=1, 2, \ldots$, we can make
+use of this recursive form to express the likelihood with a finite
+upper limit as
+\begin{eqnarray}
+    \text{Prob}(y) &=& \sum_{n = y}^{n_{\text{max}}}
+                       \text{Pois}(n ; \lambda)\;
+                      \text{Binom}(y;  n, p) \nonumber\\
+                   &=& \text{Pois}(y; \lambda)\; \text{Binom}(y; y, p)
+                       \Big\{ 1 + f_1 + f_1f_2 + 
+                    \ldots
+                      +f_1\cdots f_{n_\text{max}}
+                       \Big\} \nonumber\\
+                   &=& \text{Pois}(y; \lambda)\; \text{Binom}(y; y, p)
+                       \Big\{ 1 + f_1(1+f_2(1+f_3(1+ \dots)))\Big\}\nonumber
+\end{eqnarray}
+The log-liklihood can then evaluated using the following simple
+\texttt{R}-code
+\begin{verbatim}
+  fac = 1; ff = lambda * (1-p)
+  for (i in (n.max - y):1) fac = 1 + fac * ff / i
+  log.L = dpois(y, lambda, log=TRUE) +
+          dbinom(y, y, p, log=TRUE) + log(fac)
+\end{verbatim}
+Since this evaluation is recursive in decreasing $n$, we have to chose
+the upper limit $n_\text{max}$ up-front, for example as an integer
+larger than $y$ so that $\frac{\lambda (1-p)}{n_\text{max}-y}$ is
+small. Note that we are computing \texttt{fac} starting with the
+smallest contributions, which are more numerical stable.
+
+
+\end{document}
+
+
+
+% LocalWords: 
+
+%%% Local Variables: 
+%%% TeX-master: t
+%%% End: 
