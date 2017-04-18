@@ -21,7 +21,7 @@ Successful management of wildlife species requires accurate estimates of abundan
 In recent years, new sampling schemes and modeling approaches have enabled improved estimates of animal abundance that are less biased by non-detection (Denes et al. 2015).  One such sampling scheme, termed the "metapopulation design" (K&#233;ry and Royle 2010), involves repeat visits in rapid succession to each of multiple study sites in a study area.  If, during repeat visits, the population is assumed to be closed (no immigration , emigration, or reproduction), then the ratio of detections to non-detections during repeated counts can inform an estimate of detection probability.  This detection probability can, in effect, be used to correct abundance estimates for imperfect detection.
 
 
-Data resulting from this sampling scheme are often modeled using an explicitly hierarchical statistical model referred to as an N-mixture or binomial mixture model (Royle and Nichols 2003, Dodd and Dorazio 2004, Royle 2004, K&#233;ry et al. 2005).  A simple form of an N-mixture model describes observed counts *Y* at site *i* during survey *j* as coming from a binomial distribution with parameters for abundance *N* and detection probability *p*, where *N* per site is drawn from a Poisson distribution with an expected value, lambda $(\lambda)$. Specifically, 
+Data resulting from this sampling scheme are often modeled using an explicitly hierarchical statistical model referred to as an N-mixture model (Royle and Nichols 2003, Dodd and Dorazio 2004, Royle 2004, K&#233;ry et al. 2005).  A simple form of an N-mixture model, a binomial mixture model, describes observed counts *Y* at site *i* during survey *j* as coming from a binomial distribution with parameters for abundance *N* and detection probability *p*, where *N* per site is drawn from a Poisson distribution with an expected value, lambda $(\lambda)$. Specifically, 
 
 
 $$N_i \sim Poisson(\lambda) \qquad and \qquad  Y_{i,j} | N_i \sim binomial(N_i, p).$$
@@ -45,7 +45,10 @@ Here we discuss analysis of N-mixture models using the R-INLA package (Rue et al
 ###1.2 Overall objectives
 
 
-The purpose of this manuscript is to demonstrate analysis of N-mixture models using the R-INLA package. In the process, we employ simulated and real count datasets, and analyze them using JAGS, via the runjags package (Denwood 2016) for R, the unmarked package (Fiske et al. 2011), and the R-INLA package (Rue et al. 2013). In each case, we demonstrate how data are formatted, how models are specified, how model estimates compare to simulation inputs, and how methods compare in terms of computational performance. We also explore a limitation of the R-INLA approach, related to model specification.  Specifically, while it is possible to specify survey level covariates for detection using JAGS and unmarked, this is not possible using INLA.  Rather, survey level covariates of detection must be averaged to the site or site-year level.  Using an averaged detection covariate does allow accounting for site-level differences in survey conditions should they occur.  However, in the process of averaging, important information related to detection is discarded, which could lead to biased detection and abundance estimates under certain conditions. Much of the code used to conduct analyses is shown in the body of this manuscript. However, some repeated code, and code related to generating tables and figures, is not shown for brevity.  All code can be accessed via https://github.com/tmeeha/inlaNMix.
+The purpose of this manuscript is to demonstrate analysis of N-mixture models using the R-INLA package. In the process, we employ simulated and real count datasets, and analyze them using JAGS, via the runjags package (Denwood 2016) for R, the unmarked package (Fiske et al. 2011), and the R-INLA package (Rue et al. 2013). In each case, we demonstrate how data are formatted, how models are specified, how model estimates compare to simulation inputs, and how methods compare in terms of computational performance. We also explore a limitation of the R-INLA approach, related to model specification.  Specifically, while it is possible to specify survey level covariates for detection using JAGS and unmarked, this is not possible using INLA.  Rather, survey level covariates of detection must be averaged to the site or site-year level.  Using an averaged detection covariate does allow accounting for site-level differences in survey conditions should they occur.  However, in the process of averaging, important information related to detection is discarded, which could lead to biased detection and abundance estimates under certain conditions. 
+
+
+Much of the code used to conduct analyses is shown in the body of this manuscript. However, some repeated code, and code related to generating tables and figures, is not shown for brevity.  All code can be accessed via https://github.com/tmeeha/inlaNMix.
 
 
 ```{r setup, message=FALSE, warning=FALSE, include=FALSE}
@@ -185,7 +188,7 @@ sim.data <- data4sim()
 ###1.4 Real data
 
 
-In addition to simulated data, we also demonstrate the use of R-INLA using a real dataset in Example III.  This dataset comes from a study by K&#233;ry et al. (2005) and is publicly available as part of the unmarked package.  The dataset includes mallard duck (*Anas platyrhynchos*) counts, conducted at 239 sites on 2 or 3 occasions during the summer of 2002 as part of a Swiss program that monitors breeding bird abundance. In addition to counts, the dataset also includes 2 site-survey covariates related to detection (survey effort and survey date), and 3 site level covariates related to abundance (route length, elevation, and forest cover).  Full dataset details are given in K&#233;ry et al. (2005).
+In addition to simulated data, we also demonstrate the use of R-INLA using a real dataset in Example III.  This dataset comes from a study by K&#233;ry et al. (2005) and is publicly available as part of the unmarked package.  The dataset includes mallard duck (*Anas platyrhynchos*) counts, conducted at 239 sites on 2 or 3 occasions during the summer of 2002 as part of a Swiss program that monitors breeding bird abundance (Monitoring H&#228;ufige Brutv&#246;gel). In addition to counts, the dataset also includes 2 site-survey covariates related to detection (survey effort and survey date), and 3 site level covariates related to abundance (route length, elevation, and forest cover).  Full dataset details are given in K&#233;ry et al. (2005).
 
 
 #2. Example I
@@ -531,7 +534,7 @@ d4 <- all.out.tab[col1, 4]
 d5 <- all.out.tab[col1, 6]
 d6 <- exp(c(d3,d4,d5))
 d7 <- data.frame(y=c(0,0,0), x=d6)
-p8 <- ggplot(data=d2, aes(x=x, y=y)) + geom_path(col="gray60", lty=1) + geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) + xlab("Overdisperison parameter") + ylab(NULL) + theme_acbs() + geom_vline(xintercept=3, col="gray20", lty=1)+ 
+p8 <- ggplot(data=d2, aes(x=x, y=y)) + geom_path(col="gray60", lty=1) + geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) + xlab("Overdispersion parameter") + ylab(NULL) + theme_acbs() + geom_vline(xintercept=3, col="gray20", lty=1)+ 
 geom_line(data=d7, aes(y=y, x=x)) +
 geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
 # plot all
@@ -853,7 +856,7 @@ In conclusion, JAGS (and WinBUGS, OpenBUGS), unmarked, and R-INLA all allow user
 The likelihood for the simplest case is
 \begin{displaymath}
     \text{Prob}(y) = \sum_{n = y}^{\infty}
-    \text{Poisson}(n ; \lambda) \;\times\; \text{binomial}(y;  n, p)
+    \text{Poisson}(n ; \lambda) \;\times\; \text{binomial}(y;  n, p),
 \end{displaymath}
 where $\text{Poisson}(n; \lambda)$ is the density for the Poisson
 distribution with mean $\lambda$, $\lambda^{n}\exp(-\lambda)/n!$, and
@@ -876,10 +879,10 @@ distribution can be evaluated recursively in $n$,
 and
 
 \begin{displaymath}
-    \text{binomial}(y; n, p) = \text{binomial}(y; n-1, p) \frac{n}{n-y}(1-p),
+    \text{binomial}(y; n, p) = \text{binomial}(y; n-1, p) \frac{n}{n-y}(1-p).
 \end{displaymath}
 
-and then also for the Poisson-binomial product
+And then also for the Poisson-binomial product,
 
 \begin{displaymath}
     \text{Poisson}(n ; \lambda) \; \text{binomial}(y;  n, p)
@@ -902,7 +905,7 @@ upper limit as
                       +f_1\cdots f_{n_\text{max}}
                        \Big\} \nonumber\\
                    &=& \text{Poisson}(y; \lambda)\; \text{binomial}(y; y, p)
-                       \Big\{ 1 + f_1(1+f_2(1+f_3(1+ \dots)))\Big\}\nonumber
+                       \Big\{ 1 + f_1(1+f_2(1+f_3(1+ \dots)))\Big\}.\nonumber
 \end{eqnarray}
 
 The log-likelihood can then evaluated using the following simple \texttt{R}-code
