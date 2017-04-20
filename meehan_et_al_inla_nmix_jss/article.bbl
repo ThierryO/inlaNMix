@@ -31,9 +31,9 @@ Denes FV, Silveira LF, Beissinger SR (2015).
 
 \bibitem[{Denwood(2016)}]{Denwood_2016}
 Denwood MJ (2016).
-\newblock \enquote{runjags: An R Package Providing Interface Utilities, Model
-  Templates, Parallel Computing Methods and Additional Distributions for MCMC
-  Models in JAGS | Denwood | Journal of Statistical Software.}
+\newblock \enquote{\pkg{runjags}: An \proglang{R} Package Providing Interface
+  Utilities, Model Templates, Parallel Computing Methods and Additional
+  Distributions for MCMC Models in \proglang{JAGS}.}
 \newblock \emph{Journal of Statistical Software}, \textbf{71}(9).
 \newblock \urlprefix\url{https://www.jstatsoft.org/article/view/v071i09}.
 
@@ -46,8 +46,8 @@ Dodd CK, Dorazio RM (2004).
 \bibitem[{Fiske \emph{et~al.}(2011)Fiske, Chandler
   \emph{et~al.}}]{Fiske_Chandler_others_2011}
 Fiske I, Chandler R, \emph{et~al.} (2011).
-\newblock \enquote{unmarked: An R Package for Fitting Hierarchical models of
-  Wildlife Occurrence and Abundance.}
+\newblock \enquote{\pkg{unmarked}: An \proglang{R} Package for Fitting
+  Hierarchical models of Wildlife Occurrence and Abundance.}
 \newblock \emph{Journal of Statistical Software}, \textbf{43}(10), 1--23.
 \newblock \urlprefix\url{https://www.jstatsoft.org/article/view/v043i10}.
 
@@ -69,8 +69,8 @@ Joseph LN, Elkin C, Martin TG, Possingham HP (2009).
 
 \bibitem[{Kery(2010)}]{Kery_2010}
 Kery M (2010).
-\newblock \emph{Introduction to WinBUGS for Ecologists: Bayesian Approach to
-  Regression, ANOVA, Mixed Models and Related Analyses}.
+\newblock \emph{Introduction to \proglang{WinBUGS} for Ecologists: Bayesian
+  Approach to Regression, ANOVA, Mixed Models and Related Analyses}.
 \newblock Academic Press.
 
 \bibitem[{Kery \emph{et~al.}(2009)Kery, Dorazio, Soldaat, Van~Strien,
@@ -89,8 +89,8 @@ Kery M, Royle JA (2010).
 \bibitem[{Kery and Royle(2015)}]{Kery_Royle_2015}
 Kery M, Royle JA (2015).
 \newblock \emph{Applied Hierarchical Modeling in Ecology: Analysis of
-  Distribution, Abundance and Species Richness in R and BUGS: Volume 1: Prelude
-  and Static Models}.
+  Distribution, Abundance and Species Richness in \proglang{R} and
+  \proglang{BUGS}: Volume 1: Prelude and Static Models}.
 \newblock Academic Press.
 
 \bibitem[{Kery \emph{et~al.}(2005)Kery, Royle, and
@@ -102,14 +102,15 @@ Kery M, Royle JA, Schmid H (2005).
 
 \bibitem[{Kery and Schaub(2011)}]{Kery_Schaub_2011}
 Kery M, Schaub M (2011).
-\newblock \emph{Bayesian Population Analysis using WinBUGS: A Hierarchical
-  Perspective}.
+\newblock \emph{Bayesian Population Analysis using \proglang{WinBUGS}: A
+  Hierarchical Perspective}.
 \newblock Academic Press.
 
 \bibitem[{Lunn \emph{et~al.}(2012)Lunn, Jackson, Best, Thomas, and
   Spiegelhalter}]{Lunn_Jackson_Best_Thomas_Spiegelhalter_2012}
 Lunn D, Jackson C, Best N, Thomas A, Spiegelhalter D (2012).
-\newblock \emph{The Bugs Book: A Practical Introduction to Bayesian Analysis}.
+\newblock \emph{The \proglang{Bugs} Book: A Practical Introduction to Bayesian
+  Analysis}.
 \newblock CRC press.
 
 \bibitem[{Martin \emph{et~al.}(2011)Martin, Royle, Mackenzie, Edwards, Kery,
@@ -158,19 +159,19 @@ Royle JA, Nichols JD (2003).
 Rue H, Martino S, Chopin N (2009).
 \newblock \enquote{Approximate Bayesian Inference for Latent Gaussian Models by
   Using Integrated Nested Laplace Approximations.}
-\newblock \emph{Journal of the Royal Statistical Society: Series B (Statistical
-  Methodology)}, \textbf{71}(2), 319--392.
+\newblock \emph{Journal of the Royal Statistical Society B}, \textbf{71}(2),
+  319--392.
 
 \bibitem[{Rue \emph{et~al.}(2013)Rue, Martino, Lindgren, Simpson, and
   Riebler}]{Rue_Martino_Lindgren_Simpson_Riebler_2013}
 Rue H, Martino S, Lindgren F, Simpson D, Riebler A (2013).
-\newblock \emph{R-INLA: Approximate Bayesian Inference using Integrated Nested
-  Laplace Approximations}.
+\newblock \emph{\pkg{R-INLA}: Approximate Bayesian Inference using Integrated
+  Nested Laplace Approximations}.
 
 \bibitem[{Team(2016)}]{R_Core_Team_2016}
 Team RC (2016).
-\newblock \emph{R: A Language and Environment for Statistical Computing}.
-\newblock R Foundation for Statistical Computing.
+\newblock \enquote{\proglang{R}: A Language and Environment for Statistical
+  Computing.}
 \newblock \urlprefix\url{http://www.R-project.org}.
 
 \bibitem[{Wenger and Freeman(2008)}]{Wenger_Freeman_2008}

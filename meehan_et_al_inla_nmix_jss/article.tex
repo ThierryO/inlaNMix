@@ -7,8 +7,8 @@
 
 
 %% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\author{Timothy D. Meehan\\National Audubon Society \And
-        Nicole L. Michel\\National Audubon Society \And
+\author{Timothy D. Meehan\\National\\Audubon Society \And
+        Nicole L. Michel\\National\\Audubon Society \And
         H\"{a}vard Rue\\King Abdulla University\\of Science and Technology}
 \title{Estimating Animal Abundance with N-Mixture Models Using the \pkg{R-INLA} Package for R}
 
@@ -72,11 +72,11 @@ In recent years, new sampling schemes and modeling approaches have enabled impro
 
 Data resulting from this sampling scheme are often modeled using an explicitly hierarchical statistical model referred to as an N-mixture model \citep{Royle_Nichols_2003, Dodd_Dorazio_2004, Royle_2004, Kery_Royle_Schmid_2005}.  A simple form of an N-mixture model, a binomial mixture model, describes observed counts $Y$ at site $i$ during survey $j$ as coming from a binomial distribution with parameters for abundance $N$ and detection probability $p$, where $N$ per site is drawn from a Poisson distribution with an expected value, lambda $(\lambda)$. Specifically,
 
-$$N_i \sim Poisson(\lambda) \qquad and \qquad  Y_{i,j} | N_i \sim binomial(N_i, p).$$
+$$N_i \sim \text{Poisson}(\lambda) \qquad \text{and} \qquad  Y_{i,j} | N_i \sim \text{binomial}(N_i, p).$$
 
-$\lambda$ is commonly modeled as a log-linear function of site covariates, as $log(\lambda_i) = \beta_0 + \beta_1 * x_i$. Similarly, $p$ is commonly modeled as $logit(p_{i,j}) = \alpha_0 + \alpha_1 * x_{i,j}$, a logit-linear function of site-survey covariates.
+$\lambda$ is commonly modeled as a log-linear function of site covariates, as $\text{log}(\lambda_i) = \beta_0 + \beta_1 * x_i$. Similarly, $p$ is commonly modeled as $\text{logit}(p_{i,j}) = \alpha_0 + \alpha_1 * x_{i,j}$, a logit-linear function of site-survey covariates.
 
-This estimation approach can be extended to cover $K$ distinct breeding seasons, which correspond with distinct years for annually-breeding wildlife species \citep{Kery_Dorazio_Soldaat_Van_Strien_Zuiderwijk_Royle_2009}.  In this case, population closure is assumed across $J$ surveys within year $k$, but is relaxed across years \citep{Kery_Dorazio_Soldaat_Van_Strien_Zuiderwijk_Royle_2009}. A simple specification of a multiple-year model is $N_{i,k} \sim Poisson(\lambda_{i,k}), \quad Y_{i,j,k} | N_{i,k} \sim binomial(N_{i,k}, p_{i,k})$.  Like the single-year specification, $\lambda$ is commonly modeled using site and site-year covariates, and $p$ using site-survey-year covariates.  There are other variations of N-mixture models that accommodate overdispersed counts through use of a negative binomial distribution \citep{Kery_Royle_2010}, zero-inflated Poisson distribution \citep{Wenger_Freeman_2008}, or survey-level random intercepts \citep{Kery_Schaub_2011}.  Yet other variations account for non-independent detection probabilities through use of a beta-binomial distribution \citep{Martin_Royle_Mackenzie_Edwards_Kery_Gardner_2011}, parse different components of detection through the use of unique covariates \citep{O'Donnell_Thompson_III_Semlitsch_2015}, or relax assumptions of population closure \citep{Chandler_Royle_King_2011, Dail_Madsen_2011}.  We do not discuss all of these variations here, but refer interested readers to \cite{Denes_Silveira_Beissinger_2015} for a nice overview.
+This estimation approach can be extended to cover $K$ distinct breeding seasons, which correspond with distinct years for annually-breeding wildlife species \citep{Kery_Dorazio_Soldaat_Van_Strien_Zuiderwijk_Royle_2009}.  In this case, population closure is assumed across $J$ surveys within year $k$, but is relaxed across years \citep{Kery_Dorazio_Soldaat_Van_Strien_Zuiderwijk_Royle_2009}. A simple specification of a multiple-year model is $N_{i,k} \sim \text{Poisson}(\lambda_{i,k}), \quad Y_{i,j,k} | N_{i,k} \sim \text{binomial}(N_{i,k}, p_{i,k})$.  Like the single-year specification, $\lambda$ is commonly modeled using site and site-year covariates, and $p$ using site-survey-year covariates.  There are other variations of N-mixture models that accommodate overdispersed counts through use of a negative binomial distribution \citep{Kery_Royle_2010}, zero-inflated Poisson distribution \citep{Wenger_Freeman_2008}, or survey-level random intercepts \citep{Kery_Schaub_2011}.  Yet other variations account for non-independent detection probabilities through use of a beta-binomial distribution \citep{Martin_Royle_Mackenzie_Edwards_Kery_Gardner_2011}, parse different components of detection through the use of unique covariates \citep{O'Donnell_Thompson_III_Semlitsch_2015}, or relax assumptions of population closure \citep{Chandler_Royle_King_2011, Dail_Madsen_2011}.  We do not discuss all of these variations here, but refer interested readers to \cite{Denes_Silveira_Beissinger_2015} for a nice overview.
 
 The development of metapopulation designs and N-mixture models represents a significant advance in quantitative wildlife ecology.  However, there are practical issues that sometimes act as barriers to adoption.  Much of the development of N-mixture models, and many of the examples in the wildlife literature, implement models using Bayesian modeling software such as \proglang{WinBUGS}, \proglang{OpenBUGS}, or \proglang{JAGS} \citep{Lunn_Jackson_Best_Thomas_Spiegelhalter_2012}.  These are extremely powerful and flexible platforms for analyzing Bayesian models, but they come with a few important challenges.  First, many wildlife biologists are not accustomed to coding statistical models using the \proglang{BUGS} modeling syntax.  While there are several outstanding resources aimed at teaching this skill \citep{Royle_Dorazio_2008, Kery_2010, Kery_Schaub_2011, Kery_Royle_2015} it is, nonetheless, a considerable commitment.  Second, while Markov chain Monte Carlo (MCMC) chains converge quickly for relatively simple N-mixture models, convergence for more complex models can take hours to days, and may not occur at all.
 
@@ -99,74 +99,74 @@ As is commonly the case, we assume that the counts are overdispersed due to the 
 We simulated data for this study using the following function.  Note that the function produces two versions of detection covariate 3, x.p.3 and x.p.3.mean, and two versions of the count matrix, y1 and y2.  x.p.3 is the site-survey-year variable described above.  It is used to generate y2, which is used in Example II.  x.p.3.mean is derived from x.p.3, where values are unique to site and year, but averaged over surveys.  It is used to generate y1, which is used in Example I.
 
 \begin{Code}
-data4sim <- function(n.sites = 72,   # number study sites
-                     n.surveys = 3,  # short term replicates
-                     n.years = 9,    # number years
-                     lam.b0 = 2.0,   # intercept for log lambda
-                     lam.b1 = 2.0,   # slope for log lambda, covariate 1
-                     lam.b2 = -3.0,  # slope for log lambda, covariate 2
-                     lam.b4 = 1.0,   # slope for log lambda, year
-                     p.b0 = 1.0,     # intercept for logit p
-                     p.b1 = -2.0,    # slope for logit p, covariate 1
-                     p.b3 = 1.0,     # slope for logit p covariate 3
-                     disp.size = 3.0 # size of the overdisperison
-                     ){
-  # setup
-  if(n.years %% 2 == 0) {n.years <- n.years + 1}     # make years odd
-  N.tr <- array(dim = c(n.sites, n.years))           # array for true abund
-  y1 <- array(dim = c(n.sites, n.surveys, n.years))  # array for ex1 counts
-  y2 <- array(dim = c(n.sites, n.surveys, n.years))  # array for ex2 counts
-  # abundance covariate values
-  x.lam.1 <- array(as.numeric(scale(runif(n=n.sites, -0.5, 0.5), scale=F)),
-                   dim=c(n.sites, n.years))
-  x.lam.2 <- array(as.numeric(scale(runif(n=n.sites, -0.5, 0.5), scale=F)),
-                   dim=c(n.sites, n.years))
-  yrs <- 1:n.years; yrs <- (yrs - mean(yrs)) / (max(yrs - mean(yrs))) / 2
-  yr <- array(rep(yrs, each=n.sites), dim=c(n.sites, n.years))
-  # fill abundance array
-  lam.tr <- exp(lam.b0 + lam.b1*x.lam.1 + lam.b2*x.lam.2 + lam.b4*yr)
-  for(i in 1:n.sites){
-    for(k in 1:n.years){
-    N.tr[i, k] <- rnbinom(n = 1, mu = lam.tr[i, k], size = disp.size)
-  }}
-  # detection covariate values
-  x.p.1 <- array(x.lam.1[,1], dim=c(n.sites,n.surveys,n.years))
-  x.p.3 <- array(as.numeric(scale(runif(n=n.sites*n.surveys*n.years, -0.5, 0.5),
-                                  scale=F)), dim=c(n.sites,n.surveys,n.years))
-  # average x.p.3 per site-year
-  x.p.3.mean <- apply(x.p.3, c(1,3), mean, na.rm=F)
-  out1 <- c()
-  for(k in 1:n.years){
-   chunk1 <- x.p.3.mean[,k]
-   chunk2 <- rep(chunk1, n.surveys)
-   out1 <- c(out1, chunk2)
-  }
-  x.p.3.arr <- array(out1, dim=c(n.sites, n.surveys, n.years))
-  # fill count array with site-yr x.p.3
-  p.tr1 <- plogis(p.b0 + p.b1*x.p.1 + p.b3*x.p.3.arr)
-  for (i in 1:n.sites){
-    for (k in 1:n.years){
-      for (j in 1:n.surveys){
-        y1[i,j,k] <- rbinom(1, size=N.tr[i,k], prob=p.tr1[i,j,k])
-  }}}
-  # fill count array with site-surv-yr x.p.3
-  p.tr2 <- plogis(p.b0 + p.b1*x.p.1 + p.b3*x.p.3)
-  for (i in 1:n.sites){
-    for (k in 1:n.years){
-      for (j in 1:n.surveys){
-        y2[i,j,k] <- rbinom(1, size=N.tr[i,k], prob=p.tr2[i,j,k])
-  }}}
-  # return data
-  return(list(n.sites=n.sites, n.surveys=n.surveys, n.years=n.years,
-              x.p.1=x.p.1[,1,1], x.p.3=x.p.3, x.p.3.mean=x.p.3.mean,
-              x.p.3.arr=x.p.3.arr, x.lam.1=x.lam.1[,1],
-              x.lam.2=x.lam.2[,1], yr=yr[1,], y1=y1, y2=y2,
-              lam.tr=lam.tr, N.tr=N.tr))
-} #end function
-
-# create reproducible datasets for exercises 1 and 2
-set.seed(12345)
-sim.data <- data4sim()
+R> data4sim <- function(n.sites = 72,   # number study sites
++                       n.surveys = 3,  # short term replicates
++                       n.years = 9,    # number years
++                       lam.b0 = 2.0,   # intercept for log lambda
++                       lam.b1 = 2.0,   # slope for log lambda cov 1
++                       lam.b2 = -3.0,  # slope for log lambda cov 2
++                       lam.b4 = 1.0,   # slope for log lambda year
++                       p.b0 = 1.0,     # intercept for logit p
++                       p.b1 = -2.0,    # slope for logit p cov 1
++                       p.b3 = 1.0,     # slope for logit p cov 3
++                       disp.size = 3.0 # size of overdispersion
++                       ){
++  # setup
++  if(n.years %% 2 == 0) {n.years <- n.years + 1}     # make years odd
++  N.tr <- array(dim = c(n.sites, n.years))           # for abund
++  y1 <- array(dim = c(n.sites, n.surveys, n.years))  # for ex1 counts
++  y2 <- array(dim = c(n.sites, n.surveys, n.years))  # for ex2 counts
++  # abundance covariate values
++  x.lam.1 <- array(as.numeric(scale(runif(n = n.sites, -0.5, 0.5), 
++                   scale = F)), dim = c(n.sites, n.years))
++  x.lam.2 <- array(as.numeric(scale(runif(n = n.sites, -0.5, 0.5), 
++                   scale = F)), dim = c(n.sites, n.years))
++  yrs <- 1:n.years
++  yrs <- (yrs - mean(yrs)) / (max(yrs - mean(yrs))) / 2
++  yr <- array(rep(yrs, each = n.sites), dim = c(n.sites, n.years))
++  # fill abundance array
++  lam.tr <- exp(lam.b0 + lam.b1*x.lam.1 + lam.b2*x.lam.2 + lam.b4*yr)
++  for(i in 1:n.sites){
++    for(k in 1:n.years){
++    N.tr[i, k] <- rnbinom(n = 1, mu = lam.tr[i, k], size = disp.size)
++  }}
++  # detection covariate values
++  x.p.1 <- array(x.lam.1[,1], dim = c(n.sites, n.surveys, n.years))
++  x.p.3 <- array(as.numeric(scale(runif(n = n.sites*n.surveys*n.years, 
++                                        -0.5, 0.5), scale=F)), 
++                 dim=c(n.sites, n.surveys, n.years))
++  # average x.p.3 per site-year
++  x.p.3.mean <- apply(x.p.3, c(1,3), mean, na.rm=F)
++  out1 <- c()
++  for(k in 1:n.years){
++   chunk1 <- x.p.3.mean[,k]
++   chunk2 <- rep(chunk1, n.surveys)
++   out1 <- c(out1, chunk2)
++  }
++  x.p.3.arr <- array(out1, dim=c(n.sites, n.surveys, n.years))
++  # fill count array with site-yr x.p.3
++  p.tr1 <- plogis(p.b0 + p.b1*x.p.1 + p.b3*x.p.3.arr)
++  for (i in 1:n.sites){
++    for (k in 1:n.years){
++      for (j in 1:n.surveys){
++        y1[i,j,k] <- rbinom(1, size = N.tr[i,k], prob = p.tr1[i,j,k])
++  }}}
++  # fill count array with site-surv-yr x.p.3
++  p.tr2 <- plogis(p.b0 + p.b1 * x.p.1 + p.b3 * x.p.3)
++  for (i in 1:n.sites){
++    for (k in 1:n.years){
++      for (j in 1:n.surveys){
++        y2[i,j,k] <- rbinom(1, size = N.tr[i,k], prob = p.tr2[i,j,k])
++  }}}
++  # return data
++  return(list(n.sites = n.sites, n.surveys = n.surveys, n.years = n.years,
++              x.p.1 = x.p.1[,1,1], x.p.3 = x.p.3, x.p.3.mean = x.p.3.mean,
++              x.p.3.arr = x.p.3.arr, x.lam.1 = x.lam.1[,1],
++              x.lam.2 = x.lam.2[,1], yr = yr[1,], y1 = y1, y2 = y2,
++              lam.tr = lam.tr, N.tr = N.tr))
++  } #end function
+R> set.seed(12345) # make results reproducible
+R> sim.data <- data4sim() # create datasets
 \end{Code}
 
 \subsection[Real data]{Real data}
@@ -181,71 +181,65 @@ In Example I, we demonstrate the use of \pkg{R-INLA} and compare use and perform
 We first analyzed the simulated data using \proglang{JAGS}, via the \pkg{runjags} package. In defining the model, we specified a negative binomial distribution for the abundance component, and used vague normal priors for the intercepts and the global effects of the covariates of $\lambda$ and $p$.
 
 \begin{Code}
-jags.model.string <- "
-model {
-  # priors
-  intP ~ dnorm(0, 0.01)       # detection intercept
-  bCov1P ~ dnorm(0, 0.01)     # detection cov 1 effect
-  bCov3P ~ dnorm(0, 0.01)     # detection cov 3 effect
-  intLam ~ dnorm(0, 0.01)     # lambda intercept
-  bCov1Lam ~ dnorm(0, 0.01)   # lambda cov 1 effect
-  bCov2Lam ~ dnorm(0, 0.01)   # lambda cov 2 effect
-  bYr ~ dnorm(0, 0.01)        # year effect
-  overDisEst ~ dunif(0, 5)    # overdispersion size
-  # abundance component
-  for (k in 1:nYears){
-    for (i in 1:nSites){
-      N[i, k] ~ dnegbin(prob[i, k], overDisEst) # negative binomial specification
-      prob[i, k] <- overDisEst / (overDisEst + lambda[i, k]) # overdispersion effect
-      log(lambda[i, k]) <- intLam + (bCov1Lam * x.lam.1[i]) + (bCov2Lam * x.lam.2[i]) +
-                          (bYr * yr[k])
-  # detection component
-      for (j in 1:nSurveys){
-        y[i, j, k] ~ dbin(p[i,j,k], N[i,k])
-        p[i, j, k] <- exp(lp[i,j,k]) / (1 + exp(lp[i,j,k]))
-        lp[i, j, k] <- intP + (bCov1P * x.p.1[i]) + (bCov3P * x.p.3[i, k])
-      } # close j loop
-    } # close i loop
-  } # close k loop
-} # close model loop
-"
-}
+R> jags.model.string <- "
++    model {
++    # priors
++    intP ~ dnorm(0, 0.01)       # detection intercept
++    bCov1P ~ dnorm(0, 0.01)     # detection cov 1 effect
++    bCov3P ~ dnorm(0, 0.01)     # detection cov 3 effect
++    intLam ~ dnorm(0, 0.01)     # lambda intercept
++    bCov1Lam ~ dnorm(0, 0.01)   # lambda cov 1 effect
++    bCov2Lam ~ dnorm(0, 0.01)   # lambda cov 2 effect
++    bYr ~ dnorm(0, 0.01)        # year effect
++    overDisEst ~ dunif(0, 5)    # overdispersion size
++    # abundance component
++    for (k in 1:nYears){
++      for (i in 1:nSites){
++        N[i, k] ~ dnegbin(prob[i, k], overDisEst) # negative binomial specification
++        prob[i, k] <- overDisEst / (overDisEst + lambda[i, k]) # overdispersion effect
++        log(lambda[i, k]) <- intLam + (bCov1Lam * x.lam.1[i]) + (bCov2Lam * x.lam.2[i]) +
++                          (bYr * yr[k])
++    # detection component
++        for (j in 1:nSurveys){
++          y[i, j, k] ~ dbin(p[i,j,k], N[i,k])
++          p[i, j, k] <- exp(lp[i,j,k]) / (1 + exp(lp[i,j,k]))
++          lp[i, j, k] <- intP + (bCov1P * x.p.1[i]) + (bCov3P * x.p.3[i, k])
++        } # close j loop
++      } # close i loop
++    } # close k loop
++  } # close model loop
++  "
 \end{Code}
 
 Next, we defined the parameters to be monitored during the MCMC runs, bundled the data for \proglang{JAGS}, and created a function for drawing random initial values for the model parameters.  The initial values for abundance were made to avoid values of "NA" and zero, as these would cause computational problems.
 
 \begin{Code}
-# parameters to monitor
-params <- c("intP", "bCov1P", "bCov3P", "intLam", "bCov1Lam","bCov2Lam",
-            "bYr", "overDisEst")
-# jags data
-jags.data <- list(y = sim.data$y1, x.lam.1 = sim.data$x.lam.1,
-             x.lam.2 = sim.data$x.lam.2, yr = sim.data$yr,
-             x.p.1 = sim.data$x.p.1, x.p.3 = sim.data$x.p.3.mean,
-             nSites = sim.data$n.sites, nSurveys = sim.data$n.surveys,
-             nYears = sim.data$n.years)
-# initial values
-N.init <- sim.data$y1 # initial count values
-N.init[is.na(N.init)] <- 1 # clean up NA's
-N.init <- apply(N.init, c(1, 3), max) + 1 # zero values cause trouble
-inits <- function() list(N = N.init, intLam = rnorm(1, 0, 0.01),
-                     intP = rnorm(1, 0, 0.01), bCov1P = rnorm(1, 0, 0.01),
-                     bCov2Lam = rnorm(1,0,0.01), bCov1Lam = rnorm(1, 0, 0.01),
-                     bCov3P = rnorm(1, 0, 0.01), bYr = rnorm(1, 0, 0.01),
-                     overDisEst = runif(1, 0.5, 2.5))
+
+R> params <- c("intP", "bCov1P", "bCov3P", "intLam", "bCov1Lam","bCov2Lam",
++              "bYr", "overDisEst") # parameters to monitor
+R> jags.data <- list(y = sim.data$y1, x.lam.1 = sim.data$x.lam.1,
++               x.lam.2 = sim.data$x.lam.2, yr = sim.data$yr,
++               x.p.1 = sim.data$x.p.1, x.p.3 = sim.data$x.p.3.mean,
++               nSites = sim.data$n.sites, nSurveys = sim.data$n.surveys,
++               nYears = sim.data$n.years)
+R> N.init <- sim.data$y1 # initial count values
+R> N.init[is.na(N.init)] <- 1 # clean up NA's
+R> N.init <- apply(N.init, c(1, 3), max) + 1 # zero values cause trouble
+R> inits <- function() list(N = N.init, intLam = rnorm(1, 0, 0.01),
++                      intP = rnorm(1, 0, 0.01), bCov1P = rnorm(1, 0, 0.01),
++                      bCov2Lam = rnorm(1,0,0.01), bCov1Lam = rnorm(1, 0, 0.01),
++                      bCov3P = rnorm(1, 0, 0.01), bYr = rnorm(1, 0, 0.01),
++                      overDisEst = runif(1, 0.5, 2.5))
 \end{Code}
 
 Finally, we set the run parameters and started the MCMC process. Run parameters were chosen such that MCMC diagnostics indicated converged chains (Gelman-Rubin statistics < 1.05) and reasonably robust posterior distributions (effective sample sizes > 1000).  Note that the recommended number of effective samples for particularly robust inference is closer to 6000 \citep{Gong_Flegal_2016}.  So MCMC processing times reported here could be considered low estimates.
 
 \begin{Code}
-# set run parameters
-nc <- 3; na <- 2500; nb <- 2500; ni <- 5000; nt <- 10
-# run jags
-out.jags <- run.jags(model = jags.model.string, data = jags.data,
-                     monitor = params, n.chains = nc, inits = inits,
-                     burnin = nb, adapt = na, sample = ni, thin = nt,
-                     modules = "glm on", method = "parallel")
-summary(out.jags)
+R> nc <- 3; na <- 2500; nb <- 2500; ni <- 5000; nt <- 10 # set run parameters
+R> out.jags <- run.jags(model = jags.model.string, data = jags.data,
++                       monitor = params, n.chains = nc, inits = inits,
++                       burnin = nb, adapt = na, sample = ni, thin = nt,
++                       modules = "glm on", method = "parallel")
 \end{Code}
 
 Mean parameter estimates from the \proglang{JAGS} model were reasonably close to, and not significantly different from, the input values used to generate the data (Fig. \ref{fig:fig1}).  The potential scale reduction factor for all variables was < 1.01, and the effective sample size for all variables was > 2410.  The simulation ran in parallel on 3 virtual cores, 1 MCMC chain per core, and took approximately 2104 seconds.
@@ -262,32 +256,27 @@ Mean parameter estimates from the \proglang{JAGS} model were reasonably close to
 Next, we prepared the simulated data for the \pkg{unmarked} analysis, which involved slight modification of the data in the sim.data object.  Here, the count data was changed from a 3-dimensional $I*J*K$ array to a 2-dimensional $I*K$ row by $J$ column matrix.  Each static site level variable was duplicated and stacked $K$ times to form a single-column vector. A column vector was created to identify each year in the stacked data.  The site-year variable, x.p.3.mean, was transformed from 2-dimensional matrix to a single column vector.  Reformatted variables were then assembled in an \pkg{unmarked} data structure called an unmarked frame.
 
 \begin{Code}
-# format count data
-y.unmk <- sim.data$y1[ , , 1]
-for(i in 2:sim.data$n.years){
-  y.chunk <- sim.data$y1[ , , i]
-  y.unmk <- rbind(y.unmk, y.chunk)
-}
-# format covariates
-x.lam.1.unmk <- rep(sim.data$x.lam.1, sim.data$n.years)
-x.lam.2.unmk <- rep(sim.data$x.lam.2, sim.data$n.years)
-yr.unmk <- rep(sim.data$yr, each = sim.data$n.sites)
-x.p.1.unmk <- rep(sim.data$x.p.1, sim.data$n.years)
-x.p.3.unmk <- c(sim.data$x.p.3.mean)
-site.covs.unmk <- data.frame(x.lam.1.unmk, x.lam.2.unmk, yr.unmk,
-                             x.p.1.unmk, x.p.3.unmk)
-# make unmarked pcount frame
-unmk.data <- unmarkedFramePCount(y = y.unmk, siteCovs = site.covs.unmk)
+R> y.unmk <- sim.data$y1[ , , 1]
+R> for(i in 2:sim.data$n.years){
++    y.chunk <- sim.data$y1[ , , i]
++    y.unmk <- rbind(y.unmk, y.chunk)
++  } 
+R> x.lam.1.unmk <- rep(sim.data$x.lam.1, sim.data$n.years)
+R> x.lam.2.unmk <- rep(sim.data$x.lam.2, sim.data$n.years)
+R> yr.unmk <- rep(sim.data$yr, each = sim.data$n.sites)
+R> x.p.1.unmk <- rep(sim.data$x.p.1, sim.data$n.years)
+R> x.p.3.unmk <- c(sim.data$x.p.3.mean)
+R> site.covs.unmk <- data.frame(x.lam.1.unmk, x.lam.2.unmk, yr.unmk,
++                               x.p.1.unmk, x.p.3.unmk)
+R> unmk.data <- unmarkedFramePCount(y = y.unmk, siteCovs = site.covs.unmk)
 \end{Code}
 
 The first argument in the call to the pcount() function was the model formula, which specified the covariates for detection and then the covariates for abundance.  This was followed by an argument identifying the appropriate unmarked frame, and the form of the mixture model, negative binomial-binomial.
 
 \begin{Code}
-# run unmk model
-out.unmk <- pcount(~ x.p.1.unmk + x.p.3.unmk
-                   ~ x.lam.1.unmk + x.lam.2.unmk + yr.unmk,
-                    data = unmk.data, mixture = "NB")
-summary(out.unmk)
+R> out.unmk <- pcount(~ x.p.1.unmk + x.p.3.unmk
++                     ~ x.lam.1.unmk + x.lam.2.unmk + yr.unmk,
++                     data = unmk.data, mixture = "NB")
 \end{Code}
 
 Maximum likelihood estimates from the \pkg{unmarked} analysis are also close to, and not significantly different from, input values (Fig. \ref{fig:fig1})  The \pkg{unmarked} estimates were produced in approximately 77 seconds.
@@ -296,39 +285,36 @@ Maximum likelihood estimates from the \pkg{unmarked} analysis are also close to,
 Next, we prepared data for \pkg{R-INLA}, which uses data formats similar to those used by \pkg{unmarked}. The object counts.and.count.covs is an \pkg{R-INLA} object that includes an $I*K$ row by $J$ column matrix of counts. Next comes a value of 1, which is turned into an $I*K$ length vector of ones to specify that the model has a global intercept for $\lambda$. Finally, there are two $I*K$ length vector of values for the two static site covariates of abundance, where the vector of values for $I$ sites is stacked $K$ times.  In addition to the counts.and.count.covs object, we also defined x.p.1.inla, which is a copy of x.lam.1.inla, and x.p.3.inla, which is the $I*K$ length vector corresponding with x.p.3.mean.
 
 \begin{Code}
-# format count data
-y.inla <- sim.data$y1[ , , 1]
-for(i in 2:sim.data$n.years){
-  y.chunk <- sim.data$y1[ , , i]
-  y.inla <- rbind(y.inla, y.chunk)
-}
-# format covariates
-x.lam.1.inla <- rep(sim.data$x.lam.1, sim.data$n.years)
-x.lam.2.inla <- rep(sim.data$x.lam.2, sim.data$n.years)
-yr.inla <- rep(sim.data$yr, each = sim.data$n.sites)
-x.p.1.inla <- rep(sim.data$x.p.1, sim.data$n.years)
-x.p.3.inla <- c(sim.data$x.p.3.mean)
-# make inla.mdata object
-counts.and.count.covs <- inla.mdata(y.inla, 1, x.lam.1.inla, x.lam.2.inla, yr.inla)
+
+R> y.inla <- sim.data$y1[ , , 1]
+R> for(i in 2:sim.data$n.years){
++    y.chunk <- sim.data$y1[ , , i]
++    y.inla <- rbind(y.inla, y.chunk)
++  }
+R> x.lam.1.inla <- rep(sim.data$x.lam.1, sim.data$n.years)
+R> x.lam.2.inla <- rep(sim.data$x.lam.2, sim.data$n.years)
+R> yr.inla <- rep(sim.data$yr, each = sim.data$n.sites)
+R> x.p.1.inla <- rep(sim.data$x.p.1, sim.data$n.years)
+R> x.p.3.inla <- c(sim.data$x.p.3.mean)
+R> counts.and.count.covs <- inla.mdata(y.inla, 1, x.lam.1.inla, 
++                                      x.lam.2.inla, yr.inla)
 \end{Code}
 
 The call to the inla() function includes several components.  First is the model statement.  On the left side of the formula is the counts.and.count.covs object that includes the matrix of counts and the covariates related to $\lambda$.  On the right side of the formula is a 1 to specify a global intercept for $p$ and the two fixed covariates for $p$.  Note that a wide range of random effects for $p$ could be added to the right side of the formula \citep{Rue_Martino_Lindgren_Simpson_Riebler_2013}.  The second argument describes the data, provided here as a list that corresponds with the model formula.  Third is the likelihood family, which can take values of "nmix" for a Poisson-binomial mixture and "nmixnb" for a negative binomial-binomial mixture.  The fourth and fifth arguments specify the priors for the two model components.  In this case, the priors are specified similarly to those in the \proglang{JAGS} model, but a variety of other options are available. Several other characteristics of the analysis can be modified using the call to inla().  See \cite{Rue_Martino_Lindgren_Simpson_Riebler_2013} for details.
 
 \begin{Code}
-# run inla model
-out.inla <- inla(counts.and.count.covs ~ 1 + x.p.1.inla + x.p.3.inla,
-         data = list(counts.and.count.covs = counts.and.count.covs,
-                     x.p.1.inla = x.p.1.inla, x.p.3.inla = x.p.3.inla),
-         family = "nmixnb",
-         control.fixed = list(mean = 0, mean.intercept = 0, prec = 0.01,
-                              prec.intercept = 0.01),
-         control.family = list(hyper = list(theta1 = list(param = c(0, 0.01)),
-                                          theta2 = list(param = c(0, 0.01)),
-                                          theta3 = list(param = c(0, 0.01)),
-                                          theta4 = list(param = c(0, 0.01)),
-                                          theta5 = list(prior = "flat",
-                                                        param = numeric()))))
-summary(out.inla)
+R> out.inla <- inla(counts.and.count.covs ~ 1 + x.p.1.inla + x.p.3.inla,
++           data = list(counts.and.count.covs = counts.and.count.covs,
++                       x.p.1.inla = x.p.1.inla, x.p.3.inla = x.p.3.inla),
++           family = "nmixnb",
++           control.fixed = list(mean = 0, mean.intercept = 0, prec = 0.01,
++                                prec.intercept = 0.01),
++           control.family = list(hyper = list(theta1 = list(param = c(0, 0.01)),
++                                              theta2 = list(param = c(0, 0.01)),
++                                              theta3 = list(param = c(0, 0.01)),
++                                              theta4 = list(param = c(0, 0.01)),
++                                              theta5 = list(prior = "flat",
++                                                            param = numeric()))))
 \end{Code}
 
 Mean parameter estimates from the \pkg{R-INLA} model are also close to, and not significantly different from, input values (Fig. \ref{fig:fig1})  Full marginal posterior distributions from \pkg{R-INLA} are shown in Fig. \ref{fig:fig1}.  The analysis took approximately 6 seconds.
@@ -371,53 +357,50 @@ In Example III, we explore the performance of \pkg{R-INLA} using real data -- a 
 The \pkg{unmarked} model was specified with linear effects of transect length (length), elevation (elev), and forest cover (forest) on abundance, and a linear effect and quadratic effect of sampling intensity (ivel) and sampling date (date), respectively, on detection.  Both sampling intensity and sampling date were site-survey covariates.
 
 \begin{Code}
-# get real mallard data from unmarked package
-data(mallard)
-# format unmarked data
-mallard.y.unmk <- mallard.y
-mallard.site.unmk <- mallard.site
-mallard.obs.unmk <- mallard.obs
-mallardUMF <- unmarkedFramePCount(mallard.y.unmk, siteCovs = mallard.site.unmk,
-                                  obsCovs = mallard.obs.unmk)
-# run unmarked model
-mallard.out.unmk <- pcount(~ ivel+ date + I(date^2) ~ length + elev + forest,
-                           mixture = "NB", mallardUMF, K=30)
-summary(mallard.out.unmk)
+R> data("mallard") # get mallard data from unmarked package
+R> mallard.y.unmk <- mallard.y # format unmarked data
+R> mallard.site.unmk <- mallard.site
+R> mallard.obs.unmk <- mallard.obs
+R> mallardUMF <- unmarkedFramePCount(mallard.y.unmk, 
++                                    siteCovs = mallard.site.unmk,
++                                    obsCovs = mallard.obs.unmk)
+R> mallard.out.unmk <- pcount(~ ivel+ date + I(date^2)
++                             ~ length + elev + forest,
++                             mixture = "NB", mallardUMF, K=30) 
 \end{Code}
 
 \subsection[Analysis with R-INLA]{Analysis with R-INLA}
 The \pkg{R-INLA} model used a similar model structure.  The only difference was that the \pkg{R-INLA} model was not able to process site-survey covariates for detection, so averaged site level covariates were used, instead, which were attained using the rowMeans() function.
 
 \begin{Code}
-# format inla data
-mallard.y.inla <- mallard.y
-mallard.length.inla <- mallard.site[,2]
-mallard.elev.inla <- mallard.site[,1]
-mallard.forest.inla <- mallard.site[,3]
-mallard.ivel.inla <- rowMeans(mallard.obs$ivel, na.rm=T) # average per site
-mallard.ivel.inla[is.na(mallard.ivel.inla)] <- mean(mallard.ivel.inla, na.rm=T)
-mallard.date.inla <- rowMeans(mallard.obs$date, na.rm=T) # average per site
-mallard.date2.inla <- mallard.date.inla^2
-# make inla.mdata object
-counts.and.count.covs <- inla.mdata(mallard.y.inla, 1, mallard.length.inla,
-                                    mallard.elev.inla, mallard.forest.inla)
-# run inla model
-mallard.out.inla <- inla(counts.and.count.covs ~ 1 + mallard.ivel.inla +
-                           mallard.date.inla + mallard.date2.inla,
-         data = list(counts.and.count.covs = counts.and.count.covs,
-                     mallard.ivel.inla = mallard.ivel.inla,
-                     mallard.date.inla = mallard.date.inla,
-                     mallard.date2.inla = mallard.date2.inla),
-         family = "nmixnb",
-         control.fixed = list(mean = 0, mean.intercept = 0, prec = 0.01,
-                              prec.intercept = 0.01),
-         control.family = list(hyper = list(theta1 = list(param = c(0, 0.01)),
-                                          theta2 = list(param = c(0, 0.01)),
-                                          theta3 = list(param = c(0, 0.01)),
-                                          theta4 = list(param = c(0, 0.01)),
-                                          theta5 = list(prior = "flat",
-                                                        param = numeric()))))
-summary(mallard.out.inla)
+R> mallard.y.inla <- mallard.y # format inla data
+R> mallard.length.inla <- mallard.site[,2]
+R> mallard.elev.inla <- mallard.site[,1]
+R> mallard.forest.inla <- mallard.site[,3]
+R> mallard.ivel.inla <- rowMeans(mallard.obs$ivel, na.rm=T) # site average
+R> mallard.ivel.inla[is.na(mallard.ivel.inla)] <- 
++                                       mean(mallard.ivel.inla, na.rm = T)
+R> mallard.date.inla <- rowMeans(mallard.obs$date, na.rm=T) # site average
+R> mallard.date2.inla <- mallard.date.inla^2
+R> counts.and.count.covs <- inla.mdata(mallard.y.inla, 1, 
++                                      mallard.length.inla,
++                                      mallard.elev.inla, 
++                                      mallard.forest.inla)
+R> mallard.out.inla <- inla(counts.and.count.covs ~ 1 + mallard.ivel.inla +
++                           mallard.date.inla + mallard.date2.inla,
++      data = list(counts.and.count.covs = counts.and.count.covs,
++                           mallard.ivel.inla = mallard.ivel.inla,
++                           mallard.date.inla = mallard.date.inla,
++                           mallard.date2.inla = mallard.date2.inla),
++      family = "nmixnb",
++      control.fixed = list(mean = 0, mean.intercept = 0, prec = 0.01,
++                               prec.intercept = 0.01),
++      control.family = list(hyper = list(theta1 = list(param = c(0, 0.01)),
++                                    theta2 = list(param = c(0, 0.01)),
++                                    theta3 = list(param = c(0, 0.01)),
++                                    theta4 = list(param = c(0, 0.01)),
++                                    theta5 = list(prior = "flat",
++                                                  param = numeric()))))
 \end{Code}
 
 The 95\% credible intervals from the \pkg{R-INLA} model overlapped considerably with the 95\% confidence intervals from \pkg{unmarked} model, so parameter estimates were not significantly different from one another (Fig. \ref{fig:fig3}). Also, the parameters with values significantly different from zero were the same regardless of technique (Fig. \ref{fig:fig3}).  Using both techniques, detection decreased linearly as the season progressed and abundance decreased as linear functions of increased forest cover and elevation gain.  Parameter estimates and biological conclusions were similar despite the fact that site-survey detection covariates were used for \pkg{unmarked} and site-averaged detection covariates were used for \pkg{R-INLA}. Note that both approaches estimated moderate effects of detection covariates which, according to the results in Example II, would lead to similar results regardless of which covariate is used.  Conclusions may have been different with a different real dataset, where detection covariates had very strong effects.
@@ -453,39 +436,30 @@ We thank the following individuals for commenting on previous drafts of this man
 \appendix
 \section{Recursive computations of the "nmix" likelihood}
 The likelihood for the simplest case is
-
 \begin{displaymath}
     \text{Probability}(y) = \sum_{n = y}^{\infty}
     \text{Poisson}(n ; \lambda) \;\times\; \text{binomial}(y;  n, p)
 \end{displaymath}
-
 where $\text{Poisson}(n; \lambda)$ is the density for the Poisson distribution with mean $\lambda$, $\lambda^{n}\exp(-\lambda)/n!$, and $\text{binomial}(y; n, p)$ is the density for the binomial distribution
 with $n$ trials and probability $p$, ${n \choose y} p^{y}(1-p)^{n-p}$. Although the likelhood can be computed directly when replacing the infinite limit with a finite value, we will demonstrate here that we
-can easily evaluate it using a recursive algorithm that is both faster and more numerical stable. The same idea is also applicable to the negative binomial case, and the case where we have replicated observations of the same $n$. We leave it to the reader to derive these straight forward extentions.
+can easily evaluate it using a recursive algorithm that is both faster and more numerical stable. The same idea is also applicable to the negative binomial case, and the case where we have replicated observations of the same $n$. We leave it to the reader to derive these straight forward extensions.
 
 The key observation is that both the Poisson and the binomial distribution can be evaluated recursively in $n$,
-
 \begin{displaymath}
     \text{Poisson}(n; \lambda) = \text{Poisson}(n-1; \lambda) \frac{\lambda}{n}
 \end{displaymath}
-
 and
-
 \begin{displaymath}
     \text{binomial}(y; n, p) = \text{binomial}(y; n-1, p) \frac{n}{n-y}(1-p),
 \end{displaymath}
-
 and then also for the Poisson-binomial product
-
 \begin{displaymath}
     \text{Poisson}(n ; \lambda) \; \text{binomial}(y;  n, p)
     =
     \text{Poisson}(n-1; \lambda) \; \text{binomial}(y; n-1, p)
     \frac{\lambda}{n-y}(1-p).
 \end{displaymath}
-
 If we define $f_i = \lambda(1-p)/i$ for $i=1, 2, \ldots$, we can make use of this recursive form to express the likelihood with a finite upper limit as
-
 \begin{eqnarray}
     \text{Prob}(y) &=& \sum_{n = y}^{n_{\text{max}}}
                        \text{Poisson}(n ; \lambda)\;
@@ -498,18 +472,16 @@ If we define $f_i = \lambda(1-p)/i$ for $i=1, 2, \ldots$, we can make use of thi
                    &=& \text{Poisson}(y; \lambda)\; \text{binomial}(y; y, p)
                        \Big\{ 1 + f_1(1+f_2(1+f_3(1+ \dots)))\Big\}\nonumber
 \end{eqnarray}
-
 The log-liklihood can then evaluated using the following simple \proglang{R}-code
-
-\begin{verbatim}
-fac = 1; ff = lambda * (1-p)
-for (i in (n.max - y):1) fac = 1 + fac * ff / i
-log.L = dpois(y, lambda, log=TRUE) +
-        dbinom(y, y, p, log=TRUE) + log(fac)
-\end{verbatim}
-
-Since this evaluation is recursive in decreasing $n$, we have to chose the upper limit $n_\text{max}$ up-front, for example as an integer larger than $y$ so that $\frac{\lambda (1-p)}{n_\text{max}-y}$ is
-small. Note that we are computing \texttt{fac} starting with the smallest contributions, which are more numerically stable.
+\begin{Code}
+R> fac <- 1; ff <- lambda * (1-p)
+R> for(i in (n.max - y):1){
++    fac <- 1 + fac * ff / i
++  } 
+R> log.L <- dpois(y, lambda, log = TRUE) + dbinom(y, y, p, log = TRUE) + 
++           log(fac)
+\end{Code}
+Since this evaluation is recursive in decreasing $n$, we have to chose the upper limit $n_\text{max}$ up-front, for example as an integer larger than $y$ so that $\frac{\lambda (1-p)}{n_\text{max}-y}$ is small. Note that we are computing \texttt{fac} starting with the smallest contributions, which are more numerically stable.
 
 
 \end{document}
