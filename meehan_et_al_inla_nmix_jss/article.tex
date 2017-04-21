@@ -24,7 +24,7 @@
   Successful management of wildlife populations requires accurate estimates of abundance.  Abundance estimates can be confounded by imperfect detection during wildlife surveys. Development of N-mixture models has facilitated quantification of detectability and has improved our ability to produce accurate abundance estimates. The purpose of this study was to demonstrate the use of the \pkg{R-INLA} package to analyze N-mixture models and to compare performance of \pkg{R-INLA} to two other common approaches -- \proglang{JAGS} (via the \pkg{runjags} package), which uses Markov chain Monte Carlo methods and allows Bayesian inference, and \pkg{unmarked}, which uses Maximum Likelihood and allows Frequentist inference. Our results suggest that \pkg{R-INLA} is an attractive option for analyzing N-mixture models when (1) survey level covariates are not essential, (2) familiar model syntax and data format are desired (relative to other R packages), (3) fast computing time is necessary (\pkg{R-INLA} is 10 times faster than \pkg{unmarked}, 300 times faster than \proglang{JAGS}), and (4) Bayesian inference is preferred.
 
 }
-\Keywords{wildlife, abundance, detection, N-mixture models, \pkg{R-INLA}, \proglang{R}, \proglang{BUGS}}
+\Keywords{wildlife, abundance, detection, N-mixture models, \pkg{R-INLA}, \pkg{unmarked}, \proglang{R}, \proglang{JAGS}}
 %% without formatting
 \Plainkeywords{wildlife, abundance, detection, N-mixture models, R-INLA, R, BUGS}
 
@@ -99,7 +99,7 @@ We simulated data for this study using the following function.  Note that the fu
 
 \begin{Code}
 R> data4sim <- function(n.sites = 72,   # number study sites
-+                       n.surveys = 3,  # short term replicates
++                       n.surveys = 3,  # number replicate surveys
 +                       n.years = 9,    # number years
 +                       lam.b0 = 2.0,   # intercept for log lambda
 +                       lam.b1 = 2.0,   # slope for log lambda cov 1
@@ -245,7 +245,7 @@ Mean parameter estimates from the \proglang{JAGS} model were reasonably close to
 
 %% figure 1
 \begin{figure}
-  \includegraphics[width=\linewidth]{fig1.jpeg}
+  \includegraphics[width=\linewidth]{fig1.png}
   \caption{Marginal posteriors from \proglang{JAGS} (solid gray lines) and \pkg{R-INLA} (dashed black lines), along with Maximum Liklihood estimates (black circles) and 95\% confidence intervals (horizontal black lines) from \pkg{unmarked}.  True input values are represented by vertical black lines.}
   \label{fig:fig1}
 \end{figure}
@@ -275,7 +275,7 @@ The first argument in the call to the pcount() function was the model formula, w
 \begin{Code}
 R> out.unmk <- pcount(~ x.p.1.unmk + x.p.3.unmk
 +                     ~ x.lam.1.unmk + x.lam.2.unmk + yr.unmk,
-+                     data = unmk.data, mixture = "NB")
++                       data = unmk.data, mixture = "NB")
 \end{Code}
 
 Maximum likelihood estimates from the \pkg{unmarked} analysis are also close to, and not significantly different from, input values (Fig. \ref{fig:fig1})  The \pkg{unmarked} estimates were produced in approximately 77 seconds.
@@ -337,7 +337,7 @@ Given the long processing time associated with \proglang{JAGS} models, we only r
 
 %% figure 2
 \begin{figure}
-  \includegraphics[width=\linewidth]{fig2.jpeg}
+  \includegraphics[width=\linewidth]{fig2.png}
   \caption{Differences between the estimated posterior mean values and the true input parameter values as a function of the slope coefficient (effect size) for the site-survey-year covariate, x.p.3.  Black circles and lines are output from the model with the site-survey-year covariate, x.p.3, and gray circles and lines are from the model with an averaged site-year covariate, x.p.3.mean.  Parameter name and true input value is given in the strip across the top of each panel.}
   \label{fig:fig2}
 \end{figure}
@@ -365,7 +365,7 @@ R> mallardUMF <- unmarkedFramePCount(mallard.y.unmk,
 +                                    obsCovs = mallard.obs.unmk)
 R> mallard.out.unmk <- pcount(~ ivel+ date + I(date^2)
 +                             ~ length + elev + forest,
-+                             mixture = "NB", mallardUMF, K=30) 
++                               mixture = "NB", mallardUMF, K=30) 
 \end{Code}
 
 \subsection[Analysis with R-INLA]{Analysis with R-INLA}
@@ -406,7 +406,7 @@ The 95\% credible intervals from the \pkg{R-INLA} model overlapped considerably 
 
 %% figure 3
 \begin{figure}
-  \includegraphics[width=\linewidth]{fig3.jpeg}
+  \includegraphics[width=\linewidth]{fig3.png}
   \caption{Estimates and 95\% confidence intervals from \pkg{unmarked} (gray circles and lines) and posterior means and 95\% credible intervals from \pkg{R-INLA} (black lines) from an N-mixture model of mallard duck abundance.  The \pkg{unmarked} model included site-survey covariates for survey effort and survey date, while the \pkg{R-INLA} model included site-averaged versions.  A value of zero is depicted by the vertical gray line.}
   \label{fig:fig3}
 \end{figure}
@@ -471,7 +471,7 @@ If we define $f_i = \lambda(1-p)/i$ for $i=1, 2, \ldots$, we can make use of thi
                    &=& \text{Poisson}(y; \lambda)\; \text{binomial}(y; y, p)
                        \Big\{ 1 + f_1(1+f_2(1+f_3(1+ \dots)))\Big\}\nonumber
 \end{eqnarray}
-The log-liklihood can then evaluated using the following simple \proglang{R}-code
+The log-liklihood can then be evaluated using the following simple \proglang{R}-code.
 \begin{Code}
 R> fac <- 1; ff <- lambda * (1-p)
 R> for(i in (n.max - y):1){
@@ -480,7 +480,7 @@ R> for(i in (n.max - y):1){
 R> log.L <- dpois(y, lambda, log = TRUE) + dbinom(y, y, p, log = TRUE) + 
 +           log(fac)
 \end{Code}
-Since this evaluation is recursive in decreasing $n$, we have to chose the upper limit $n_\text{max}$ up-front, for example as an integer larger than $y$ so that $\frac{\lambda (1-p)}{n_\text{max}-y}$ is small. Note that we are computing \texttt{fac} starting with the smallest contributions, which are more numerically stable.
+Since this evaluation is recursive in decreasing $n$, we have to choose the upper limit $n_\text{max}$ up-front, for example as an integer larger than $y$ so that $\frac{\lambda (1-p)}{n_\text{max}-y}$ is small. Note that we are computing \texttt{fac} starting with the smallest contributions, which are more numerically stable.
 
 
 \end{document}

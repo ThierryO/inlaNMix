@@ -306,11 +306,12 @@ d5 <- all.out.tab[col1, 6]
 d6 <- (c(d3,d4,d5))
 d7 <- data.frame(y=c(0,0,0), x=d6)
 p1 <- ggplot(data=d2, aes(x=x, y=y)) + geom_path(col="gray60", lty=1) +
-  geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) + xlab("log(Lambda)") +
+  geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) +
+  xlab("log(lambda) intercept") +
   ylab(" ") + scale_y_continuous(breaks=c(3,6,9)) + theme_acbs() +
   geom_vline(xintercept=(2), col="gray20", lty=1) +
-geom_line(data=d7, aes(y=y, x=x)) +
-geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
+  geom_line(data=d7, aes(y=y, x=x)) + theme(axis.title.x = element_text(size=9)) +
+  geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
 # make density for x.1.lam
 d1 <- as.data.frame(out.inla$marginals.hyperpar$`beta[2] for NMix observations`)
 d2 <- as.data.frame(density(jags.df$bCov1Lam)[c(1,2)])
@@ -322,10 +323,11 @@ d6 <- c(d3,d4,d5)
 d7 <- data.frame(y=c(0,0,0), x=d6)
 p2 <- ggplot(data=d2, aes(x=x, y=y)) + geom_path(col="gray60", lty=1) +
   geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) +
-  xlab("Abundance covariate 1")  + ylab("Posterior density") + theme_acbs() +
+  xlab("log(lambda) covariate 1")  +
+  ylab("Posterior density") + theme_acbs() +
   geom_vline(xintercept=2, col="gray20", lty=1) +
-geom_line(data=d7, aes(y=y, x=x)) +
-geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
+  geom_line(data=d7, aes(y=y, x=x)) + theme(axis.title.x = element_text(size=9)) +
+  geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
 # make density for x.2.lam
 d1 <- as.data.frame(out.inla$marginals.hyperpar$`beta[3] for NMix observations`)
 d2 <- as.data.frame(density(jags.df$bCov2Lam)[c(1,2)])
@@ -337,10 +339,11 @@ d6 <- c(d3,d4,d5)
 d7 <- data.frame(y=c(0,0,0), x=d6)
 p3 <- ggplot(data=d2, aes(x=x, y=y)) + geom_path(col="gray60", lty=1) +
   geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) +
-  xlab("Abundance covariate 2")  + ylab(" ") + theme_acbs() +
-geom_vline(xintercept=-3, col="gray20", lty=1) +
-geom_line(data=d7, aes(y=y, x=x)) +
-geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
+  xlab("log(lambda) covariate 2")  +
+  ylab(" ") + theme_acbs() + theme(axis.title.x = element_text(size=9)) +
+  geom_vline(xintercept=-3, col="gray20", lty=1) +
+  geom_line(data=d7, aes(y=y, x=x)) +
+  geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
 # make density for yr.lam
 d1 <- as.data.frame(out.inla$marginals.hyperpar$`beta[4] for NMix observations`)
 d2 <- as.data.frame(density(jags.df$bYr)[c(1,2)])
@@ -352,10 +355,11 @@ d6 <- c(d3,d4,d5)
 d7 <- data.frame(y=c(0,0,0), x=d6)
 p4 <- ggplot(data=d2, aes(x=x, y=y)) + geom_path(col="gray60", lty=1) +
   geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) +
-  xlab("Year covariate")  + ylab(NULL) + theme_acbs() +
-geom_vline(xintercept=1, col="gray20", lty=1) +
-geom_line(data=d7, aes(y=y, x=x)) +
-geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
+  xlab("log(lambda) year covariate")  +
+  ylab(NULL) + theme_acbs() + theme(axis.title.x = element_text(size=9)) +
+  geom_vline(xintercept=1, col="gray20", lty=1) +
+  geom_line(data=d7, aes(y=y, x=x)) +
+  geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
 # make density for intP
 d1 <- as.data.frame(out.inla$marginals.fixed$`(Intercept)`)
 d1$x <- (d1$x)
@@ -368,10 +372,11 @@ d5 <- all.out.tab[col1, 6]
 d6 <- (c(d3,d4,d5))
 d7 <- data.frame(y=c(0,0,0), x=d6)
 p5 <- ggplot(data=d2, aes(x=x, y=y)) + geom_path(col="gray60", lty=1) +
-  geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) + xlab("logit(p)")  +
+  geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) +
+  xlab("logit(p) intercept")  +
   ylab(NULL) + theme_acbs() + geom_vline(xintercept=(1), col="gray20", lty=1) +
-geom_line(data=d7, aes(y=y, x=x)) +
-geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
+  geom_line(data=d7, aes(y=y, x=x)) + theme(axis.title.x = element_text(size=9)) +
+  geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
 # make density for x.1.p
 d1 <- as.data.frame(out.inla$marginals.fixed$x.p.1.inla)
 d2 <- as.data.frame(density(jags.df$bCov1P)[c(1,2)])
@@ -383,10 +388,10 @@ d6 <- c(d3,d4,d5)
 d7 <- data.frame(y=c(0,0,0), x=d6)
 p6 <- ggplot(data=d2, aes(x=x, y=y)) + geom_path(col="gray60", lty=1) +
   geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) +
-  xlab("Detection covariate 1")  + ylab(NULL) + theme_acbs() +
+  xlab("logit(p) covariate 1")  + ylab(NULL) + theme_acbs() +
   geom_vline(xintercept=-2, col="gray20", lty=1)+
-geom_line(data=d7, aes(y=y, x=x)) +
-geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
+  geom_line(data=d7, aes(y=y, x=x)) + theme(axis.title.x = element_text(size=9)) +
+  geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
 # make density for x.3.p
 d1 <- as.data.frame(out.inla$marginals.fixed$x.p.3.inla)
 d2 <- as.data.frame(density(jags.df$bCov3P)[c(1,2)])
@@ -398,10 +403,10 @@ d6 <- c(d3,d4,d5)
 d7 <- data.frame(y=c(0,0,0), x=d6)
 p7 <- ggplot(data=d2, aes(x=x, y=y)) + geom_path(col="gray60", lty=1) +
   geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) +
-  xlab("Detection covariate 3")  + ylab(NULL) + theme_acbs() +
+  xlab("logit(p) covariate 3")  + ylab(NULL) + theme_acbs() +
   geom_vline(xintercept=1, col="gray20", lty=1)+
-geom_line(data=d7, aes(y=y, x=x)) +
-geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
+  geom_line(data=d7, aes(y=y, x=x)) + theme(axis.title.x = element_text(size=9)) +
+  geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
 # make density for overdisp
 d1 <- as.data.frame(out.inla$marginals.hyperpar$`overdispersion for NMix observations`)
 d1$x <- 1 / d1$x; d1$y <- d1$y / 8
@@ -415,11 +420,13 @@ d7 <- data.frame(y=c(0,0,0), x=d6)
 p8 <- ggplot(data=d2, aes(x=x, y=y)) + geom_path(col="gray60", lty=1) +
   geom_path(data=d1, aes(x=x, y=y), col="black", lty=2 ) +
   xlab("Overdispersion parameter") + ylab(NULL) + theme_acbs() +
-  geom_vline(xintercept=3, col="gray20", lty=1)+
-geom_line(data=d7, aes(y=y, x=x)) +
-geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
+  geom_vline(xintercept=3, col="gray20", lty=1) +
+  geom_line(data=d7, aes(y=y, x=x)) + theme(axis.title.x = element_text(size=9)) +
+  geom_point(data=d7, aes(y=y, x=x), col="black", shape=c(32,19,32))
 # plot all
+png("fig1.png", width = 6, height = 5, units = 'in', res = 600)
 multiplot(p1,p2,p3,p4,p5,p6,p7,p8,cols=3)
+dev.off()
 # ##############################################################################
 
 
@@ -544,25 +551,28 @@ round(simu.time.1 <- proc.time() - ptm, 2)[3]
 
 # explore results, example 2 ###################################################
 par_names <- c(
-  'bCov1Lam'="Abundance covariate 1 (2)",
-  'bCov2Lam'="Abundance covariate 2 (-3)",
-  'bYr'="Abundance covariate year (1)",
-  'bCov1P'="Detection covariate 1 (-2)",
-  'bCov3P'="Detection covariate 3 (X)",
-  'intLam'="Abundance intercept (2)",
-  'intP'="Detection intercept (1)",
-  'overDisEst'="Overdispersion estimate (3)"
+  'intLam'="log(lambda) intercept",
+  'bCov1Lam'="log(lambda) covariate 1",
+  'bCov2Lam'="log(lambda) covariate 2",
+  'bYr'="log(lambda) year covariate",
+  'intP'="logit(p) intercept",
+  'bCov1P'="logit(p) covariate 1",
+  'bCov3P'="logit(p) covariate 3",
+  'overDisEst'="Overdispersion parameter"
 )
 to.string <- as_labeller(par_names)
+# plot
+png("fig2.png", width = 6, height = 5, units = 'in', res = 600)
 ggplot(data=sim.out, aes(x=p.b3, y=diffs, colour=simtype, linetype=simtype)) +
   geom_point(pch=1, size=1.5) +
   facet_wrap(~factor(par), scales="fixed",labeller=to.string) +
-  xlab("Slope coefficient for the detection covariate") +
+  xlab("Slope coefficient for logit(p) covariate 3") +
   ylab("Difference between posterior mean and true parameter value") +
   geom_smooth(span=3, se=F, size=0.5) +
   theme_acbs() + scale_color_manual(values=c("black","gray50")) +
   theme(strip.background = element_rect(colour = "black", fill = "white"),
-        legend.position="none") + scale_linetype_manual(values=c(1,2))
+        legend.position="none") + scale_linetype_manual(values=c(1,1))
+dev.off()
 # ##############################################################################
 
 
@@ -643,23 +653,26 @@ inla.out.tab.2 <- rbind(in1,in2,in3); colnames(inla.out.tab.2) <- c("X1", "X2",
 # combine out
 all.out.tab.2 <- round(rbind(unmk.out.tab.2, inla.out.tab.2),2)
 colnames(all.out.tab.2) <- c("Estimate","Lower", "Upper")
-all.out.tab.2$Parameter <- factor(rep(c("Detection intercept",
+all.out.tab.2$Parameter <- factor(rep(c("logit(p) intercept",
                                         "Survey intensity",
-                                        "Survey date", "S. date squared",
-                                        "Abundance intercept",
+                                        "Survey date (SD)", "SD squared",
+                                        "log(lambda) intercept",
                                         "Transect length", "Transect elevation",
                                         "Forest cover",
                                         "Overdispersion"), 2))
 all.out.tab.2$Technique <- factor(rep(c("unmarked", "R-INLA"), each=9))
 rownames(all.out.tab.2) <- NULL
 pd <- position_dodge(0.2)
+# plot
+png("fig3.png", width = 6, height = 3, units = 'in', res = 600)
 ggplot(data=all.out.tab.2, aes(y=Estimate, x=Parameter, col=Technique)) +
   geom_point(position=pd) +
   geom_errorbar(aes(ymin = Lower, ymax = Upper), position=pd) +
   theme_acbs() + scale_color_manual(values=c("black","gray50")) +
   coord_flip() + geom_hline(yintercept=0, col="gray30") +
-  xlab("Estimated value (95% credible or confidence interval)") +
-  ylab("Model parameter")
+  ylab("Estimated value (95% CI or CrI)") +
+  xlab("Model parameter")
+dev.off()
 # ##############################################################################
 
 
