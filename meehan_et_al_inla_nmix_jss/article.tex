@@ -476,7 +476,7 @@ R> for(i in (n.max - y):1){
 R> log.L <- dpois(y, lambda, log = TRUE) + dbinom(y, y, p, log = TRUE) + 
 +           log(fac)
 \end{CodeInput}
-Since this evaluation is recursive in decreasing $n$, we have to choose the upper limit $n_\text{max}$ up-front, for example as an integer larger than $y$ so that $\frac{\lambda (1-p)}{n_\text{max}-y}$ is small. Note that we are computing \texttt{fac} starting with the smallest contributions, which are more numerically stable.
+Since this evaluation is recursive in decreasing $n$, we have to choose the upper limit $n_\text{max}$ up-front, for example as an integer larger than $y$ so that $\frac{\lambda (1-p)}{n_\text{max}-y}$ is small. Note that we are computing \code{fac} starting with the smallest contributions, which are more numerically stable.
 
 
 \end{document}
