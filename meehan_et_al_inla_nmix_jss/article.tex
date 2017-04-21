@@ -96,7 +96,7 @@ As is commonly the case, we assume that the counts are overdispersed due to the 
 
 We simulated data for this study using the following function. Note that the function produces two versions of detection covariate 3, x.p.3 and x.p.3.mean, and two versions of the count matrix, y1 and y2. x.p.3 is the site-survey-year variable described above. It is used to generate y2, which is used in Example II. x.p.3.mean is derived from x.p.3, where values are unique to site and year, but averaged over surveys. It is used to generate y1, which is used in Example I.
 
-\begin{Code}
+\begin{CodeInput}
 R> data4sim <- function(n.sites = 72,   # number study sites
 +                       n.surveys = 3,  # number replicate surveys
 +                       n.years = 9,    # number years
@@ -165,7 +165,7 @@ R> data4sim <- function(n.sites = 72,   # number study sites
 +  } #end function
 R> set.seed(12345) # make results reproducible
 R> sim.data <- data4sim() # create datasets
-\end{Code}
+\end{CodeInput}
 
 \subsection[Real data]{Real data}
 In addition to simulated data, we also demonstrate the use of \pkg{R-INLA} with a real dataset in Example III. This dataset comes from a study by \cite{Kery_Royle_Schmid_2005} and is publicly available as part of the \pkg{unmarked} package. The dataset includes mallard duck (\emph{Anas platyrhynchos}) counts, conducted at 239 sites on 2 or 3 occasions during the summer of 2002 as part of a Swiss program that monitors breeding bird abundance (Monitoring H\"{a}ufige Brutv\"{o}gel). In addition to counts, the dataset also includes 2 site-survey covariates related to detection (survey effort and survey date), and 3 site level covariates related to abundance (route length, elevation, and forest cover). Full dataset details are given in \cite{Kery_Royle_Schmid_2005}.
@@ -178,7 +178,7 @@ In Example I, we demonstrate the use of \pkg{R-INLA} and compare use and perform
 \subsection[Analysis with JAGS]{Analysis with JAGS}
 We first analyzed the simulated data using \proglang{JAGS}, via the \pkg{runjags} package. In defining the model, we specified a negative binomial distribution for the abundance component, and used vague normal priors for the intercepts and the global effects of the covariates of $\lambda$ and $p$.
 
-\begin{Code}
+\begin{CodeInput}
 R> jags.model.string <- "
 +    model {
 +    # priors
@@ -207,11 +207,11 @@ R> jags.model.string <- "
 +    } # close k loop
 +  } # close model loop
 +  "
-\end{Code}
+\end{CodeInput}
 
 Next, we defined the parameters to be monitored during the MCMC runs, bundled the data for \proglang{JAGS}, and created a function for drawing random initial values for the model parameters. The initial values for abundance were made to avoid values of "NA" and zero, as these would cause computational problems.
 
-\begin{Code}
+\begin{CodeInput}
 R> params <- c("intP", "bCov1P", "bCov3P", "intLam", "bCov1Lam","bCov2Lam",
 +              "bYr", "overDisEst") # parameters to monitor
 R> jags.data <- list(y = sim.data$y1, x.lam.1 = sim.data$x.lam.1,
@@ -227,17 +227,17 @@ R> inits <- function() list(N = N.init, intLam = rnorm(1, 0, 0.01),
 +               bCov2Lam = rnorm(1, 0, 0.01), bCov1Lam = rnorm(1, 0, 0.01),
 +               bCov3P = rnorm(1, 0, 0.01), bYr = rnorm(1, 0, 0.01),
 +               overDisEst = runif(1, 0.5, 2.5))
-\end{Code}
+\end{CodeInput}
 
 Finally, we set the run parameters and started the MCMC process. Run parameters were chosen such that MCMC diagnostics indicated converged chains (potential scale reduction factors < 1.05) and reasonably robust posterior distributions (effective sample sizes > 1000). Note that the recommended number of effective samples for particularly robust inference is closer to 6000 \citep{Gong_Flegal_2016}. So MCMC processing times reported here could be considered low estimates.
 
-\begin{Code}
+\begin{CodeInput}
 R> nc <- 3; na <- 2500; nb <- 2500; ni <- 5000; nt <- 10 # run parameters
 R> out.jags <- run.jags(model = jags.model.string, data = jags.data,
 +                       monitor = params, n.chains = nc, inits = inits,
 +                       burnin = nb, adapt = na, sample = ni, thin = nt,
 +                       modules = "glm on", method = "parallel")
-\end{Code}
+\end{CodeInput}
 
 Mean parameter estimates from the \proglang{JAGS} model were reasonably close to, and not significantly different from, the input values used to generate the data (Fig. \ref{fig:fig1}). The potential scale reduction factor for all variables was < 1.01, and the effective sample size for all variables was > 2409. The simulation ran in parallel on 3 virtual cores, 1 MCMC chain per core, and took approximately 2104 seconds.
 
@@ -252,7 +252,7 @@ Mean parameter estimates from the \proglang{JAGS} model were reasonably close to
 \subsection[Analysis with unmarked]{Analysis with unmarked}
 Next, we prepared the simulated data for the \pkg{unmarked} analysis, which involved slight modification of the data in the sim.data object. Here, the count data was changed from a 3-dimensional $I*J*K$ array to a 2-dimensional $I*K$ row by $J$ column matrix.  Each static site level variable was duplicated and stacked $K$ times to form a single-column vector. A column vector was created to identify each year in the stacked data. The site-year variable, x.p.3.mean, was transformed from 2-dimensional matrix to a single column vector. Reformatted variables were then assembled in an \pkg{unmarked} data structure called an unmarked frame.
 
-\begin{Code}
+\begin{CodeInput}
 R> y.unmk <- sim.data$y1[ , , 1]
 R> for(i in 2:sim.data$n.years){
 +    y.chunk <- sim.data$y1[ , , i]
@@ -266,22 +266,22 @@ R> x.p.3.unmk <- c(sim.data$x.p.3.mean)
 R> site.covs.unmk <- data.frame(x.lam.1.unmk, x.lam.2.unmk, yr.unmk,
 +                               x.p.1.unmk, x.p.3.unmk)
 R> unmk.data <- unmarkedFramePCount(y = y.unmk, siteCovs = site.covs.unmk)
-\end{Code}
+\end{CodeInput}
 
 The first argument in the call to the pcount() function was the model formula, which specified the covariates for detection and then the covariates for abundance. This was followed by an argument identifying the appropriate unmarked frame, and the form of the mixture model, negative binomial-binomial.
 
-\begin{Code}
+\begin{CodeInput}
 R> out.unmk <- pcount(~ x.p.1.unmk + x.p.3.unmk
 +                     ~ x.lam.1.unmk + x.lam.2.unmk + yr.unmk,
 +                       data = unmk.data, mixture = "NB")
-\end{Code}
+\end{CodeInput}
 
 Maximum Likelihood estimates from the \pkg{unmarked} analysis are also close to, and not significantly different from, input values (Fig. \ref{fig:fig1})  The \pkg{unmarked} estimates were produced in approximately 77 seconds.
 
 \subsection[Analysis with R-INLA]{Analysis with R-INLA}
 Next, we prepared data for \pkg{R-INLA}, which uses data formats similar to those used by \pkg{unmarked}. The object counts.and.count.covs is an \pkg{R-INLA} object that includes an $I*K$ row by $J$ column matrix of counts. Next comes a value of 1, which is turned into an $I*K$ length vector of ones to specify that the model has a global intercept for $\lambda$. Finally, there are two $I*K$ length vector of values for the two static site covariates of abundance, where the vector of values for $I$ sites is stacked $K$ times. In addition to the counts.and.count.covs object, we also defined x.p.1.inla, which is a copy of x.lam.1.inla, and x.p.3.inla, which is the $I*K$ length vector corresponding with x.p.3.mean.
 
-\begin{Code}
+\begin{CodeInput}
 
 R> y.inla <- sim.data$y1[ , , 1]
 R> for(i in 2:sim.data$n.years){
@@ -295,11 +295,11 @@ R> x.p.1.inla <- rep(sim.data$x.p.1, sim.data$n.years)
 R> x.p.3.inla <- c(sim.data$x.p.3.mean)
 R> counts.and.count.covs <- inla.mdata(y.inla, 1, x.lam.1.inla, 
 +                                      x.lam.2.inla, yr.inla)
-\end{Code}
+\end{CodeInput}
 
 The call to the inla() function includes several components. First is the model statement. On the left side of the formula is the counts.and.count.covs object that includes the matrix of counts and the covariates related to $\lambda$.  On the right side of the formula is a 1 to specify a global intercept for $p$ and the two covariates for $p$.  Note that a wide range of random effects for $p$ could be added to the right side of the formula using the f() syntax \citep{Rue_Martino_Lindgren_Simpson_Riebler_2013}. The second argument describes the data, provided here as a list that corresponds with the model formula. Third is the likelihood family, which can take values of "nmix" for a Poisson-binomial mixture and "nmixnb" for a negative binomial-binomial mixture. The fourth (control.fixed, for detection parameters) and fifth (control.family, for abundance and overdispersion parameters) arguments specify the priors for the two model components. In this case, the priors are specified similarly to those in the \proglang{JAGS} model, but a variety of other options are available. Several other characteristics of the analysis can be modified in the call to inla(). See \cite{Rue_Martino_Lindgren_Simpson_Riebler_2013} for details.
 
-\begin{Code}
+\begin{CodeInput}
 R> out.inla <- inla(counts.and.count.covs ~ 1 + x.p.1.inla + x.p.3.inla,
 +           data = list(counts.and.count.covs = counts.and.count.covs,
 +                       x.p.1.inla = x.p.1.inla, x.p.3.inla = x.p.3.inla),
@@ -313,7 +313,7 @@ R> out.inla <- inla(counts.and.count.covs ~ 1 + x.p.1.inla + x.p.3.inla,
 +                                       theta4 = list(param = c(0, 0.01)),
 +                                       theta5 = list(prior = "flat",
 +                                                     param = numeric()))))
-\end{Code}
+\end{CodeInput}
 
 Mean parameter estimates from the \pkg{R-INLA} model are also close to, and not significantly different from, input values (Fig. \ref{fig:fig1}). Full marginal posterior distributions from \pkg{R-INLA} are shown in Fig. \ref{fig:fig1}. The analysis took approximately 6 seconds.
 
@@ -353,7 +353,7 @@ In Example III, we explore the performance of \pkg{R-INLA} using real data -- a 
 \subsection[Analysis with unmarked]{Analysis with unmarked}
 The \pkg{unmarked} model was specified with linear effects of transect length (length), elevation (elev), and forest cover (forest) on abundance, and a linear effect and quadratic effect of sampling intensity (ivel) and sampling date (date), respectively, on detection. Both sampling intensity and sampling date were site-survey, or survey level covariates.
 
-\begin{Code}
+\begin{CodeInput}
 R> data("mallard") # get mallard data from unmarked package
 R> mallard.y.unmk <- mallard.y # format unmarked data
 R> mallard.site.unmk <- mallard.site
@@ -364,12 +364,12 @@ R> mallardUMF <- unmarkedFramePCount(mallard.y.unmk,
 R> mallard.out.unmk <- pcount(~ ivel+ date + I(date^2)
 +                             ~ length + elev + forest,
 +                               mixture = "NB", mallardUMF, K=30) 
-\end{Code}
+\end{CodeInput}
 
 \subsection[Analysis with R-INLA]{Analysis with R-INLA}
 The \pkg{R-INLA} model used a similar model structure. The only difference was that the \pkg{R-INLA} model was not able to process site-survey covariates for detection, so averaged site level covariates were used, instead. These averages were attained using the rowMeans() function.
 
-\begin{Code}
+\begin{CodeInput}
 R> mallard.y.inla <- mallard.y # format inla data
 R> mallard.length.inla <- mallard.site[,2]
 R> mallard.elev.inla <- mallard.site[,1]
@@ -398,7 +398,7 @@ R> mallard.out.inla <- inla(counts.and.count.covs ~ 1 + mallard.ivel.inla +
 +                                    theta4 = list(param = c(0, 0.01)),
 +                                    theta5 = list(prior = "flat",
 +                                                  param = numeric()))))
-\end{Code}
+\end{CodeInput}
 
 The 95\% credible intervals from the \pkg{R-INLA} model overlapped broadly with the 95\% confidence intervals from \pkg{unmarked} model, so parameter estimates were not significantly different from one another (Fig. \ref{fig:fig3}). Also, the parameters with estimates significantly different from zero were the same regardless of technique (Fig. \ref{fig:fig3}). Using both techniques, detection decreased linearly as the season progressed, and abundance decreased as linear functions of increasing forest cover and elevation gain. Parameter estimates and biological conclusions were similar despite the fact that site-survey detection covariates were used for \pkg{unmarked} and site-averaged detection covariates were used for \pkg{R-INLA}. Note that both approaches estimated moderate effects of detection covariates which, according to the results in Example II, would indicate that other parameter estimates were not substantially biased. These results may have been different with a different real dataset, where detection covariates had very strong effects.
 
@@ -468,14 +468,14 @@ If we define $f_i = \lambda(1-p)/i$ for $i=1, 2, \ldots$, we can make use of thi
                        \Big\{ 1 + f_1(1+f_2(1+f_3(1+ \dots)))\Big\}\nonumber
 \end{eqnarray}
 The log-liklihood can then be evaluated using the following simple \proglang{R}-code.
-\begin{Code}
+\begin{CodeInput}
 R> fac <- 1; ff <- lambda * (1-p)
 R> for(i in (n.max - y):1){
 +    fac <- 1 + fac * ff / i
 +  } 
 R> log.L <- dpois(y, lambda, log = TRUE) + dbinom(y, y, p, log = TRUE) + 
 +           log(fac)
-\end{Code}
+\end{CodeInput}
 Since this evaluation is recursive in decreasing $n$, we have to choose the upper limit $n_\text{max}$ up-front, for example as an integer larger than $y$ so that $\frac{\lambda (1-p)}{n_\text{max}-y}$ is small. Note that we are computing \texttt{fac} starting with the smallest contributions, which are more numerically stable.
 
 
