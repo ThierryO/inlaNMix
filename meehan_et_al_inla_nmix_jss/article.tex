@@ -9,7 +9,7 @@
 %% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \author{Timothy D. Meehan\\National\\Audubon Society \And
         Nicole L. Michel\\National\\Audubon Society \And
-        Haavard Rue\\King Abdulla University\\of Science and Technology}
+        H{\aa}vard Rue\\King Abdulla University\\of Science and Technology}
 \title{Estimating Animal Abundance with N-Mixture Models Using the \pkg{R-INLA} Package for R}
 
 %% comma-separated
@@ -48,7 +48,7 @@
   San Francisco, California USA\\
   E-mail: \email{nmichel@audubon.org}\\
   \\
-  Haavard Rue\\
+  H{\aa}vard Rue\\
   King Abdulla University
   of Science and Technology\\
   Thuwal, Saudi Arabia\\
@@ -66,7 +66,7 @@
 \subsection[Background]{Background}
 Successful management of wildlife species requires accurate estimates of abundance \citep{Yoccoz_Nichols_Boulinier_2001}. One common method for estimating animal abundance is direct counts \citep{Pollock_Nichols_Simons_Farnsworth_Bailey_Sauer_2002}. Efforts to obtain accurate abundance estimates via direct counts can be hindered by the cryptic nature of many wildlife species and by other factors such as observer expertise, weather, and habitat structure \citep{Denes_Silveira_Beissinger_2015}. The lack of perfect detection in wildlife surveys is common, and can cause abundance to be greatly underestimated \citep{Wenger_Freeman_2008, Joseph_Elkin_Martin_Possingham_2009}.
 
-In recent years, new sampling schemes and modeling approaches have enabled improved estimates of animal abundance that are less biased by non-detection \citep{Denes_Silveira_Beissinger_2015}. One such sampling scheme, termed a metapopulation design \citep{Kery_Royle_2010}, involves repeat visits in rapid succession to each of multiple study sites in a study area. If, during repeat visits, the population is assumed to be closed (no immigration, emigration, or reproduction; static abundance), then the ratio of detections to non-detections during repeated counts can inform an estimate of detection probability. This detection probability can, in effect, be used to correct abundance estimates for imperfect detection \citep{Royle_2004}.
+In recent years, new sampling schemes and modeling approaches have enabled improved estimates of animal abundance that are less biased by non-detection \citep{Denes_Silveira_Beissinger_2015}. One such sampling scheme, termed a metapopulation design \citep{Kery_Royle_2010}, involves repeat visits in rapid succession to each of multiple study sites in a study area. If, during repeat visits, the population is assumed to be closed (no immigration, emigration, or reproduction; i.e., static abundance), then the ratio of detections to non-detections during repeated counts can inform an estimate of detection probability. This detection probability can, in effect, be used to correct abundance estimates for imperfect detection \citep{Royle_2004}.
 
 Data resulting from this sampling scheme are often modeled using an explicitly hierarchical statistical model referred to as an N-mixture model \citep{Royle_Nichols_2003, Dodd_Dorazio_2004, Royle_2004, Kery_Royle_Schmid_2005}. A simple form of an N-mixture model, a Binomial mixture model, describes observed counts $Y$ at site $i$ during survey $j$ as coming from a Binomial distribution with parameters for abundance $N$ and detection probability $p$, where $N$ per site is drawn from a Poisson distribution with an expected value $\lambda$. Specifically,
 
@@ -175,7 +175,7 @@ In addition to simulated data, we also demonstrate the use of \pkg{R-INLA} with 
 \subsection[Goals]{Goals}
 In Example I, we demonstrate the use of \pkg{R-INLA} and compare use and performance to similar analyses using \proglang{JAGS} and \pkg{unmarked}. In this exercise, the functional forms of \proglang{JAGS}, \pkg{unmarked}, and \pkg{R-INLA} models match the data generating process.  Specifically, we used the covariate x.p.3.mean to generate the count matrix y1 and analyzed the data with models that use x.p.3.mean as a covariate. This exercise was intended to demonstrate the differences and similarities in use, computation time, and estimation results across the three methods when the specified model was reasonably close to the data generating process.
 
-\subsection[Analysis with JAGS]{Analysis with JAGS}
+\subsection[Analysis with JAGS]{Analysis with \proglang{JAGS}}
 We first analyzed the simulated data using \proglang{JAGS}, via the \pkg{runjags} package. In defining the model, we specified a Negative Binomial distribution for the abundance component, and used vague normal priors for the intercepts and the global effects of the covariates of $\lambda$ and $p$.
 
 \begin{CodeInput}
@@ -249,7 +249,7 @@ Mean parameter estimates from the \proglang{JAGS} model were reasonably close to
 \end{figure}
 %% end figure 1
 
-\subsection[Analysis with unmarked]{Analysis with unmarked}
+\subsection[Analysis with unmarked]{Analysis with \pkg{unmarked}}
 Next, we prepared the simulated data for the \pkg{unmarked} analysis, which involved slight modification of the data in the sim.data object. Here, the count data was changed from a 3-dimensional $I*J*K$ array to a 2-dimensional $I*K$ row by $J$ column matrix.  Each static site level variable was duplicated and stacked $K$ times to form a single-column vector. A column vector was created to identify each year in the stacked data. The site-year variable, x.p.3.mean, was transformed from 2-dimensional matrix to a single column vector. Reformatted variables were then assembled in an \pkg{unmarked} data structure called an unmarked frame.
 
 \begin{CodeInput}
@@ -278,7 +278,7 @@ R> out.unmk <- pcount(~ x.p.1.unmk + x.p.3.unmk
 
 Maximum Likelihood estimates from the \pkg{unmarked} analysis are also close to, and not significantly different from, input values (Fig. \ref{fig:fig1})  The \pkg{unmarked} estimates were produced in approximately 77 seconds.
 
-\subsection[Analysis with R-INLA]{Analysis with R-INLA}
+\subsection[Analysis with R-INLA]{Analysis with \pkg{R-INLA}}
 Next, we prepared data for \pkg{R-INLA}, which uses data formats similar to those used by \pkg{unmarked}. The object counts.and.count.covs is an \pkg{R-INLA} object that includes an $I*K$ row by $J$ column matrix of counts. Next comes a value of 1, which is turned into an $I*K$ length vector of ones to specify that the model has a global intercept for $\lambda$. Finally, there are two $I*K$ length vector of values for the two static site covariates of abundance, where the vector of values for $I$ sites is stacked $K$ times. In addition to the counts.and.count.covs object, we also defined x.p.1.inla, which is a copy of x.lam.1.inla, and x.p.3.inla, which is the $I*K$ length vector corresponding with x.p.3.mean.
 
 \begin{CodeInput}
@@ -331,7 +331,7 @@ In sum, when compared to other tools, \pkg{R-INLA} is relatively easy to impleme
 \subsection[Goals]{Goals}
 In Example 2, we show the consequences of not being able to specify a site-survey-year covariate under a range of conditions. Specifically, we conducted a Monte Carlo simulation where, for each iteration, the count matrix for the analysis, y2, was generated with the data generating function described in 1.3, using the site-survey-year covariate x.p.3. The count data were then analyzed with two \proglang{JAGS} models. One model incorporated an averaged site-survey x.p.3.mean as a covariate, such as in 2.1. The other model incorporated the full site-survey-year covariate instead. In each iteration we randomly varied the size of the effect for x.p.3. We expected that the simpler model, with x.p.3.mean, would yield biased estimates when the effect of x.p.3 was relatively large, and unbiased estimates when the effect was relatively small.
 
-\subsection[Analysis with JAGS]{Analysis with JAGS}
+\subsection[Analysis with JAGS]{Analysis with \proglang{JAGS}}
 Given the long processing time associated with \proglang{JAGS} models, we only ran 3000 iterations (no thinning, after 1000 adaptive and 1000 burn-in iterations) during each simulation. This number is not sufficient for drawing inference from marginal posteriors, but was sufficient for looking at qualitative patterns in posterior means. In each of the 50 iterations, the size of the effect for x.p.3 was drawn from a uniform distribution that ranged from -3 to 3. The results of the simulations are depicted in Fig. \ref{fig:fig2}.
 
 %% figure 2
@@ -350,7 +350,7 @@ As expected, biases in estimates of average abundance (log(lambda) intercept) an
 \subsection[Goals]{Goals}
 In Example III, we explore the performance of \pkg{R-INLA} using real data -- a publicly available dataset on mallard duck abundance in Switzerland in 2002. By employing real data, we hoped to evaluate (1) the performance of \pkg{R-INLA} using data that were not predictable by design and (2) the practical outcome of not being able to specify site-survey covariates in \pkg{R-INLA}. The dataset is available as a demonstration dataset in \pkg{unmarked}, so we compared the performance of \pkg{R-INLA} with \pkg{unmarked}, using the demonstration model and analysis settings, in Example III.
 
-\subsection[Analysis with unmarked]{Analysis with unmarked}
+\subsection[Analysis with unmarked]{Analysis with \pkg{unmarked}}
 The \pkg{unmarked} model was specified with linear effects of transect length (length), elevation (elev), and forest cover (forest) on abundance, and a linear effect and quadratic effect of sampling intensity (ivel) and sampling date (date), respectively, on detection. Both sampling intensity and sampling date were site-survey, or survey level covariates.
 
 \begin{CodeInput}
@@ -366,7 +366,7 @@ R> mallard.out.unmk <- pcount(~ ivel+ date + I(date^2)
 +                               mixture = "NB", mallardUMF, K=30) 
 \end{CodeInput}
 
-\subsection[Analysis with R-INLA]{Analysis with R-INLA}
+\subsection[Analysis with R-INLA]{Analysis with \pkg{R-INLA}}
 The \pkg{R-INLA} model used a similar model structure. The only difference was that the \pkg{R-INLA} model was not able to process site-survey covariates for detection, so averaged site level covariates were used, instead. These averages were attained using the rowMeans() function.
 
 \begin{CodeInput}
@@ -424,7 +424,7 @@ In conclusion, \proglang{JAGS} (and \proglang{WinBUGS}, \proglang{OpenBUGS}), \p
 
 %% acknowledgements
 \section*{Acknowledgments}
-We thank the following individuals for commenting on previous drafts of this manuscript.
+We thank Jerry Cole and Curtis Burkhalter for commenting on previous drafts of this manuscript.
 
 %% references
 \bibliography{bibliog}
@@ -456,7 +456,7 @@ and then also for the Poisson-Binomial product
 \end{displaymath}
 If we define $f_i = \lambda(1-p)/i$ for $i=1, 2, \ldots$, we can make use of this recursive form to express the likelihood with a finite upper limit as
 \begin{eqnarray}
-    \text{Prob}(y) &=& \sum_{n = y}^{n_{\text{max}}}
+    \text{Probability}(y) &=& \sum_{n = y}^{n_{\text{max}}}
                        \text{Poisson}(n ; \lambda)\;
                       \text{Binomial}(y;  n, p) \nonumber\\
                    &=& \text{Poisson}(y; \lambda)\; \text{Binomial}(y; y, p)
