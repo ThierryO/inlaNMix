@@ -2,6 +2,19 @@ This is BibTeX, Version 0.99dThe top-level auxiliary file: article.aux
 The style file: jss.bst
 Database file #1: bibliog.bib
 Warning--entry type for "R_Core_Team_2016" isn't style-file defined
---line 95 of file bibliog.bib
+--line 159 of file bibliog.bib
+I was expecting a `,' or a `}'---line 261 of file bibliog.bib
+ :  
+ :  title = {Bayesian Spatial Modelling with R-INLA},
+(Error may have been on previous line)
+I'm skipping whatever remains of this entry
+I was expecting a `,' or a `}'---line 277 of file bibliog.bib
+ :  
+ :  url= {https://www.r-project.org/conferences/DSC-2003/}}
+(Error may have been on previous line)
+I'm skipping whatever remains of this entry
+Warning--empty year in Lindgren_Rue_2015; set to ????
+Warning--empty title in Lindgren_Rue_2015
+Warning--empty journal in Lindgren_Rue_2015
 Warning--missing publisher in Rue_Martino_Lindgren_Simpson_Riebler_2013
-(There were 2 warnings)
+(There were 2 error messages)
