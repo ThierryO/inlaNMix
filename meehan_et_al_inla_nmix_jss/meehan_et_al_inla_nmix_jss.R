@@ -1,6 +1,6 @@
 # code for Meehan, Michel, and Rue #############################################
 # demonstration of R-INLA for analyzing N-mixture models
-# 04/19/2017
+# 04/26/2017
 # ##############################################################################
 
 
@@ -8,9 +8,8 @@
 
 
 # directories, libraries, and helpers ##########################################
-setwd("~/GitHub/Quantitative_Metrics/INLA_NMix")
 library(runjags)
-library(INLA)
+library(INLA) # may require testing version
 library(unmarked)
 library(ggplot2)
 # multiplot function
@@ -677,10 +676,5 @@ dev.off()
 
 
 
-
-
-# wrap up ######################################################################
-save.image("~/GitHub/Quantitative_Metrics/INLA_NMix/meehan_et_al_inla_nmix.RData")
-# ##############################################################################
 
 
