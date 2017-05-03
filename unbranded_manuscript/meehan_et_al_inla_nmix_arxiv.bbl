@@ -2,7 +2,7 @@
 
 \bibitem[Blangiardo and Cameletti, 2015]{Blangiardo_Cameletti_2015}
 Blangiardo, M. and Cameletti, M. (2015).
-\newblock {\em Spatial and Spatio-Temporal Bayesian Models with \pkg{R-INLA}}.
+\newblock {\em Spatial and Spatio-Temporal Bayesian Models with \emph{R-INLA}}.
 \newblock John Wiley \& Sons, West Sussex, UK.
 
 \bibitem[Chandler et~al., 2011]{Chandler_Royle_King_2011}
