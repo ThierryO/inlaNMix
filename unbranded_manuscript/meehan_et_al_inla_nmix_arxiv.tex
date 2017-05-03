@@ -1,0 +1,456 @@
+%% set up %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass{article}
+\usepackage{amstext}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+\usepackage{authblk}
+\usepackage[margin=28mm]{geometry}
+\usepackage{titling}
+\newcommand{\subtitle}[1]{%
+	\posttitle{%
+		\par\end{center}
+	\begin{center}\large#1\end{center}
+	\vskip4mm}%
+}
+\title{	Estimating Animal Abundance with N-Mixture Models \\ Using the \emph{R-INLA} Package for \emph{R}}
+	
+\subtitle{DRAFT: NOT YET PEER REVIEWED}
+\author{Timothy D. Meehan$^1$, Nicole L. Michel$^2$, H{\aa}vard Rue$^3$}
+\date{
+	$^1$\emph{National Audubon Society, Boulder, CO USA\\}
+	$^2$\emph{National Audubon Society, San Francisco, CA USA\\}
+	$^3$\emph{King Abdulla University of Science and Technology, Thuwal, Saudi Arabia\\}
+}
+
+% start   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\maketitle
+
+\begin{abstract}
+	\fontsize{10pt}{11pt}\selectfont
+	Successful management of wildlife populations requires accurate estimates of abundance. Abundance estimates can be confounded by imperfect detection during wildlife surveys. N-mixture models enable quantification of detection probability and often produce abundance estimates that are less biased. The purpose of this study was to demonstrate the use of the \emph{R-INLA} package to analyze N-mixture models and to compare performance of \emph{R-INLA} to two other common approaches -- \emph{JAGS} (via the \emph{runjags} package), which uses Markov chain Monte Carlo and allows Bayesian inference, and \emph{unmarked}, which uses Maximum Likelihood and allows frequentist inference. We show that \emph{R-INLA} is an attractive option for analyzing N-mixture models when (1) familiar model syntax and data format (relative to other \emph{R} packages) are desired, (2) survey level covariates of detection are not essential, (3) fast computing times are necessary (\emph{R-INLA} is 10 times faster than \emph{unmarked}, 300 times faster than \emph{JAGS}), and (4) Bayesian inference is preferred.
+\end{abstract}
+
+%% introduction
+\fontsize{11pt}{12pt}\selectfont
+\section[Introduction]{Introduction}
+\subsection[Background]{Background}
+Successful management of wildlife species requires accurate estimates of abundance \citep{Yoccoz_Nichols_Boulinier_2001}. One common method for estimating animal abundance is direct counts \citep{Pollock_Nichols_Simons_Farnsworth_Bailey_Sauer_2002}. Efforts to obtain accurate abundance estimates via direct counts can be hindered by the cryptic nature of many wildlife species and by other factors such as observer expertise, weather, and habitat structure \citep{Denes_Silveira_Beissinger_2015}. The lack of perfect detection in wildlife surveys is common, and can cause abundance to be greatly underestimated \citep{Wenger_Freeman_2008, Joseph_Elkin_Martin_Possingham_2009}.
+
+In recent years, new sampling schemes and modeling approaches have enabled improved estimates of animal abundance that are less biased by non-detection \citep{Denes_Silveira_Beissinger_2015}. One such sampling scheme, termed a metapopulation design \citep{Kery_Royle_2010}, involves repeat visits in rapid succession to each of multiple study sites in a study area. If, during repeat visits, the population is assumed to be closed (no immigration, emigration, reproduction or mortality; i.e., static abundance), then the ratio of detections to non-detections during repeated counts can inform an estimate of detection probability. This detection probability can be used to correct abundance estimates for imperfect detection \citep{Royle_2004}.
+
+Data resulting from this sampling scheme are often modeled using an explicitly hierarchical statistical model referred to as an N-mixture model \citep{Royle_Nichols_2003, Dodd_Dorazio_2004, Royle_2004, Kery_Royle_Schmid_2005}. A simple form of an N-mixture model, a Binomial mixture model, describes observed counts $Y$ at site $i$ during survey $j$ as coming from a Binomial distribution with parameters for abundance $N$ and detection probability $p$, where $N$ per site is drawn from a Poisson distribution with an expected value $\lambda$. Specifically,
+
+$$N_i \sim \text{Poisson}(\lambda) \qquad \text{and} \qquad  Y_{i,j} | N_i \sim \text{Binomial}(N_i, p).$$
+
+The mean is commonly modeled as a log-linear function of site covariates, as $\text{log}(\lambda_i) = \beta_0 + \beta_1x_i$. Similarly, $p$ is commonly modeled as $\text{logit}(p_{i,j}) = \alpha_0 + \alpha_1x_{i,j}$, a logit-linear function of site-survey covariates.
+
+This estimation approach can be extended to cover $K$ distinct breeding seasons, which correspond with distinct years for wildlife species that breed annually \citep{Kery_Dorazio_Soldaat_Van_Strien_Zuiderwijk_Royle_2009}. In this case, population closure is assumed across $J$ surveys within year $k$, but is relaxed across years \citep{Kery_Dorazio_Soldaat_Van_Strien_Zuiderwijk_Royle_2009}. A simple specification of a multiple-year model is $N_{i,k} \sim \text{Poisson}(\lambda_{i,k}), \ Y_{i,j,k} | N_{i,k} \sim \text{Binomial}(N_{i,k}, p_{i,k})$. Like the single-year specification, $\lambda$ is commonly modeled using site and site-year covariates, and $p$ using site-survey-year covariates. There are other variations of N-mixture models that accommodate overdispersed counts through use of a Negative Binomial distribution \citep{Kery_Royle_2010}, a Zero-Inflated Poisson distribution \citep{Wenger_Freeman_2008}, or survey-level random intercepts \citep{Kery_Schaub_2011}. Yet other variations account for non-independent detection probabilities through use of a Beta-Binomial distribution \citep{Martin_Royle_Mackenzie_Edwards_Kery_Gardner_2011}, parse different components of detection through the use of unique covariates \citep{O'Donnell_Thompson_III_Semlitsch_2015}, or relax assumptions of population closure \citep{Chandler_Royle_King_2011, Dail_Madsen_2011}. We do not discuss all of these variations here, but refer interested readers to \cite{Denes_Silveira_Beissinger_2015} for an overview.
+
+The development of metapopulation designs and N-mixture models represents a significant advance in quantitative wildlife ecology. However, there are practical issues that sometimes act as barriers to adoption. Many of the examples of N-mixture models in the wildlife literature have employed Bayesian modeling software such as \emph{WinBUGS}, \emph{OpenBUGS}, or \emph{JAGS} \citep{plummer2003jags,Lunn_Jackson_Best_Thomas_Spiegelhalter_2012}. These are extremely powerful and flexible platforms for analyzing hierarchical models, but they come with a few important challenges.  First, many wildlife biologists are not accustomed to coding statistical models using the \emph{BUGS} modeling syntax. While there are several outstanding resources aimed at teaching this skill \citep{Royle_Dorazio_2008, Kery_2010, Kery_Schaub_2011, Kery_Royle_2015} it is, nonetheless, a considerable commitment. Second, while Markov chain Monte Carlo (MCMC) chains converge quickly for relatively simple N-mixture models, convergence for more complex models can take hours to days, or may not occur at all.
+
+There are other tools available for analyzing N-mixture models that alleviate some of these practical issues.  The \emph{unmarked} package \citep{Fiske_Chandler_others_2011} for \emph{R} statistical computing software \citep{R_Core_Team_2016} offers several options for analyzing N-mixture models within a frequentist framework, with the capacity to accommodate overdispersion and dynamic populations. The model coding syntax used in \emph{unmarked} is a simple extension of the standard \emph{R} modeling syntax. Models are analyzed using Maximum Likelihood (ML), so model analysis is often completed in a fraction of the time taken using an MCMC approach. The familiar model syntax and rapid model evaluation of \emph{unmarked} has undoubtedly contributed to the broader adoption of N-mixture models by wildlife biologists. However, it comes at a cost -- loss of the intuitive inferential framework associated with Bayesian analysis.
+
+Here we discuss analysis of N-mixture models using the \emph{R-INLA} package \citep{Martins_Simpson_Lindgren_Rue_2013,Rue_Riebler_Sorbye_Illian_Simpson_Lindgren_2017} for \emph{R}. The \emph{R-INLA} package uses integrated nested Laplace approximation (INLA) to derive posterior distributions for a large class of Bayesian statistical models that can be formulated as latent Gaussian models \citep{Rue_Martino_Chopin_2009, Lindgren_Rue_Lindstrom_2011}. INLA was developed to allow estimation of posterior distributions in a fraction of the time taken by MCMC. Like \emph{unmarked}, the model syntax used in the \emph{R-INLA} package is a straightforward extension of the modeling syntax commonly used in \emph{R}. Also, like \emph{unmarked}, the computational cost of analyzing models with \emph{R-INLA} is relatively low. The \emph{R-INLA} approach is different from \emph{unmarked} in that inference about model parameters falls within a Bayesian framework.
+
+\subsection[Overall objectives]{Overall objectives}
+The purpose of this manuscript is to demonstrate analysis of N-mixture models using the \emph{R-INLA} package. In the process, we employ simulated and real count datasets, and analyze them using \emph{JAGS}, via the \emph{runjags} package \citep{Denwood_2016} for \emph{R}, the \emph{unmarked} package, and the \emph{R-INLA} package. In each case, we demonstrate how data are formatted, how models are specified, how model estimates compare to simulation inputs, and how methods compare in terms of computational performance. We also explore a limitation of the \emph{R-INLA} approach related to model specification. Specifically, while it is possible to specify survey level covariates for detection using \emph{JAGS} and \emph{unmarked}, this is not possible using \emph{R-INLA}. Rather, survey level covariates of detection must be averaged to the site or site-year level. Using an averaged detection covariate does allow accounting for site-level differences in survey conditions, should they occur. However, in the process of averaging, information related to detection within a site or site-year combination is discarded, which could lead to biased detection and abundance estimates under certain conditions.
+
+Much of the code used to conduct analyses is shown in the body of this manuscript. However, some repeated code, and code related to generating tables and figures, is not shown for brevity. All code can be accessed via https://github.com/tmeeha/inlaNMix. See https://r-inla.org to connect with the community around the development of \emph{R-INLA} and its application to geostatistics, biostatistics, epidemiology, and econometrics \citep{Lindgren_Rue_2015,Blangiardo_Cameletti_2015}.
+
+\subsection[Simulated data]{Simulated data}
+The data simulated for this analysis were intended to represent a typical wildlife population study. To put the simulation in context, consider an effort to estimate the abundance of a bird species in a national park, within which are located 72 study sites. At each site, 3 replicate surveys are conducted within 6 weeks, during the peak of the breeding season, when birds are likely to be singing. In order to estimate a trend in abundance over time, clusters of repeated surveys are conducted each breeding season over a 9-year period.
+
+In this scenario, the abundance of the species is thought to vary with two site-level covariates ($\lambda$ covariates 1 and 2) that represent habitat characteristics at a site and do not change appreciably over time. The detection probability is also believed to vary according to two covariates ($p$ covariates 1 and 3). The first covariate for detection, $p$ covariate 1, is the same site-level covariate 1 that affects abundance, although it has the opposite effect on detection. The other detection covariate, $p$ covariate 3, is a site-survey-year variable that could be related to weather conditions during an individual survey.
+
+As is commonly the case, we assume that the counts are overdispersed due to the effects of unknown variables. Overdispersion was generated and modeled using a Negative Binomial distribution for the count component of the model. The specific model parameters and their simulated values were: p.b0 = 1.0 (logit($p$) intercept), p.b1 = -2.0 (effect of covariate 1 on logit($p$)), p.b3 = 1.0 (effect of covariate 3 on logit($p$)), lam.b0 = 2.0 (log(lambda) intercept), lam.b1 = 2.0 (effect of covariate 1 on log(lambda)), lam.b2 = -3.0 (effect of covariate 2 on log(lambda)), lam.yr = 1.0 (effect of year on log(lambda)), disp.size = 3.0 (size of the overdispersion parameter). All independent variables in the simulation were centered at zero to alleviate computational difficulties and to make model intercepts more easily interpreted.
+
+We simulated data for this study using the following function. Note that the function produces two versions of detection covariate 3, x.p.3 and x.p.3.mean, and two versions of the count matrix, y1 and y2. x.p.3 is the site-survey-year variable described above. It is used to generate y2, which is used in Example II. x.p.3.mean is derived from x.p.3, where values are unique to site and year, but averaged over surveys. It is used to generate y1, which is used in Example I.
+
+\begin{verbatim}
+R> data4sim <- function(n.sites = 72,   # number study sites
++                       n.surveys = 3,  # number replicate surveys
++                       n.years = 9,    # number years
++                       lam.b0 = 2.0,   # intercept for log lambda
++                       lam.b1 = 2.0,   # slope for log lambda cov 1
++                       lam.b2 = -3.0,  # slope for log lambda cov 2
++                       lam.yr = 1.0,   # slope for log lambda year
++                       p.b0 = 1.0,     # intercept for logit p
++                       p.b1 = -2.0,    # slope for logit p cov 1
++                       p.b3 = 1.0,     # slope for logit p cov 3
++                       disp.size = 3.0 # size of overdispersion
++                       ){
++  # setup
++  if(n.years %% 2 == 0) {n.years <- n.years + 1}     # make years odd
++  N.tr <- array(dim = c(n.sites, n.years))           # for abund
++  y1 <- array(dim = c(n.sites, n.surveys, n.years))  # for ex1 counts
++  y2 <- array(dim = c(n.sites, n.surveys, n.years))  # for ex2 counts
++  # abundance covariate values
++  x.lam.1 <- array(as.numeric(scale(runif(n = n.sites, -0.5, 0.5), 
++                   scale = F)), dim = c(n.sites, n.years))
++  x.lam.2 <- array(as.numeric(scale(runif(n = n.sites, -0.5, 0.5), 
++                   scale = F)), dim = c(n.sites, n.years))
++  yrs <- 1:n.years
++  yrs <- (yrs - mean(yrs)) / (max(yrs - mean(yrs))) / 2
++  yr <- array(rep(yrs, each = n.sites), dim = c(n.sites, n.years))
++  # fill abundance array
++  lam.tr <- exp(lam.b0 + lam.b1*x.lam.1 + lam.b2*x.lam.2 + lam.yr*yr)
++  for(i in 1:n.sites){
++    for(k in 1:n.years){
++    N.tr[i, k] <- rnbinom(n = 1, mu = lam.tr[i, k], size = disp.size)
++  }}
++  # detection covariate values
++  x.p.1 <- array(x.lam.1[,1], dim = c(n.sites, n.surveys, n.years))
++  x.p.3 <- array(as.numeric(scale(runif(n = n.sites*n.surveys*n.years, 
++                                        -0.5, 0.5), scale=F)), 
++                 dim=c(n.sites, n.surveys, n.years))
++  # average x.p.3 per site-year
++  x.p.3.mean <- apply(x.p.3, c(1,3), mean, na.rm=F)
++  out1 <- c()
++  for(k in 1:n.years){
++   chunk1 <- x.p.3.mean[,k]
++   chunk2 <- rep(chunk1, n.surveys)
++   out1 <- c(out1, chunk2)
++  }
++  x.p.3.arr <- array(out1, dim=c(n.sites, n.surveys, n.years))
++  # fill count array with site-yr x.p.3
++  p.tr1 <- plogis(p.b0 + p.b1*x.p.1 + p.b3*x.p.3.arr)
++  for (i in 1:n.sites){
++    for (k in 1:n.years){
++      for (j in 1:n.surveys){
++        y1[i,j,k] <- rbinom(1, size = N.tr[i,k], prob = p.tr1[i,j,k])
++  }}}
++  # fill count array with site-surv-yr x.p.3
++  p.tr2 <- plogis(p.b0 + p.b1 * x.p.1 + p.b3 * x.p.3)
++  for (i in 1:n.sites){
++    for (k in 1:n.years){
++      for (j in 1:n.surveys){
++        y2[i,j,k] <- rbinom(1, size = N.tr[i,k], prob = p.tr2[i,j,k])
++  }}}
++  # return data
++  return(list(n.sites = n.sites, n.surveys = n.surveys, n.years = n.years,
++              x.p.1 = x.p.1[,1,1], x.p.3 = x.p.3, x.p.3.mean = x.p.3.mean,
++              x.p.3.arr = x.p.3.arr, x.lam.1 = x.lam.1[,1],
++              x.lam.2 = x.lam.2[,1], yr = yr[1,], y1 = y1, y2 = y2,
++              lam.tr = lam.tr, N.tr = N.tr))
++  } #end function
+R> set.seed(12345) # make results reproducible
+R> sim.data <- data4sim() # create datasets
+\end{verbatim}
+
+\subsection[Real data]{Real data}
+In addition to simulated data, we also demonstrate the use of \emph{R-INLA} with a real dataset in Example III. This dataset comes from a study by \cite{Kery_Royle_Schmid_2005} and is publicly available as part of the \emph{unmarked} package. The dataset includes mallard duck (\emph{Anas platyrhynchos}) counts, conducted at 239 sites on 2 or 3 occasions during the summer of 2002 as part of a Swiss program that monitors breeding bird abundance (Monitoring H\"{a}ufige Brutv\"{o}gel). In addition to counts, the dataset also includes 2 site-survey covariates related to detection (survey effort and survey date), and 3 site level covariates related to abundance (route length, elevation, and forest cover). Full dataset details are given in \cite{Kery_Royle_Schmid_2005}.
+
+%% example 1
+\section[Example I]{Example I}
+\subsection[Goals]{Goals}
+In Example I, we demonstrate the use of \emph{R-INLA} and compare use and performance to similar analyses using \emph{JAGS} and \emph{unmarked}. In this exercise, the functional forms of \emph{JAGS}, \emph{unmarked}, and \emph{R-INLA} models match the data generating process.  Specifically, we used the covariate x.p.3.mean to generate the count matrix y1 and analyzed the data with models that use x.p.3.mean as a covariate. This exercise was intended to demonstrate the differences and similarities in use, computation time, and estimation results across the three methods when the specified model was reasonably close to the data generating process.
+
+\subsection[Analysis with JAGS]{Analysis with \emph{JAGS}}
+We first analyzed the simulated data using \emph{JAGS}, via the \emph{runjags} package. In defining the model, we specified a Negative Binomial distribution for the abundance component, and used vague normal priors for the intercepts and the global effects of the covariates of $\lambda$ and $p$.
+
+\begin{verbatim}
+R> jags.model.string <- "
++    model {
++    # priors
++    intP ~ dnorm(0, 0.01)       # detection intercept
++    bCov1P ~ dnorm(0, 0.01)     # detection cov 1 effect
++    bCov3P ~ dnorm(0, 0.01)     # detection cov 3 effect
++    intLam ~ dnorm(0, 0.01)     # lambda intercept
++    bCov1Lam ~ dnorm(0, 0.01)   # lambda cov 1 effect
++    bCov2Lam ~ dnorm(0, 0.01)   # lambda cov 2 effect
++    bYr ~ dnorm(0, 0.01)        # year effect
++    overDisEst ~ dunif(0, 5)    # overdispersion size
++    # abundance component
++    for (k in 1:nYears){
++      for (i in 1:nSites){
++        N[i, k] ~ dnegbin(prob[i, k], overDisEst) # negative binomial
++        prob[i, k] <- overDisEst / (overDisEst + lambda[i, k])
++        log(lambda[i, k]) <- intLam + (bCov1Lam * x.lam.1[i]) + 
++                             (bCov2Lam * x.lam.2[i]) + (bYr * yr[k])
++    # detection component
++        for (j in 1:nSurveys){
++          y[i, j, k] ~ dbin(p[i,j,k], N[i,k])
++          p[i, j, k] <- exp(lp[i,j,k]) / (1 + exp(lp[i,j,k]))
++          lp[i, j, k] <- intP + (bCov1P * x.p.1[i]) + (bCov3P * x.p.3[i, k])
++        } # close j loop
++      } # close i loop
++    } # close k loop
++  } # close model loop
++  "
+\end{verbatim}
+
+Next, we defined the parameters to be monitored during the MCMC runs, bundled the data for \emph{JAGS}, and created a function for drawing random initial values for the model parameters. The initial values for abundance were made to avoid values of "NA" and zero, as these would cause computational problems.
+
+\begin{verbatim}
+R> params <- c("intP", "bCov1P", "bCov3P", "intLam", "bCov1Lam","bCov2Lam",
++              "bYr", "overDisEst") # parameters to monitor
+R> jags.data <- list(y = sim.data$y1, x.lam.1 = sim.data$x.lam.1,
++               x.lam.2 = sim.data$x.lam.2, yr = sim.data$yr,
++               x.p.1 = sim.data$x.p.1, x.p.3 = sim.data$x.p.3.mean,
++               nSites = sim.data$n.sites, nSurveys = sim.data$n.surveys,
++               nYears = sim.data$n.years)
+R> N.init <- sim.data$y1 # initial count values
+R> N.init[is.na(N.init)] <- 1 # clean up NA's
+R> N.init <- apply(N.init, c(1, 3), max) + 1 # zero values cause trouble
+R> inits <- function() list(N = N.init, intLam = rnorm(1, 0, 0.01),
++               intP = rnorm(1, 0, 0.01), bCov1P = rnorm(1, 0, 0.01),
++               bCov2Lam = rnorm(1, 0, 0.01), bCov1Lam = rnorm(1, 0, 0.01),
++               bCov3P = rnorm(1, 0, 0.01), bYr = rnorm(1, 0, 0.01),
++               overDisEst = runif(1, 0.5, 2.5))
+\end{verbatim}
+
+Finally, we set the run parameters and started the MCMC process. Run parameters were chosen such that MCMC diagnostics indicated converged chains (potential scale reduction factors $<$ 1.05) and reasonably robust posterior distributions (effective sample sizes $>$ 1000). Note that the recommended number of effective samples for particularly robust inference is closer to 6000 \citep{Gong_Flegal_2016}. So MCMC processing times reported here could be considered low estimates.
+
+\begin{verbatim}
+R> nc <- 3; na <- 2500; nb <- 2500; ni <- 5000; nt <- 10 # run parameters
+R> out.jags <- run.jags(model = jags.model.string, data = jags.data,
++                       monitor = params, n.chains = nc, inits = inits,
++                       burnin = nb, adapt = na, sample = ni, thin = nt,
++                       modules = "glm on", method = "parallel")
+\end{verbatim}
+
+Mean parameter estimates from the \emph{JAGS} model were reasonably close to, and not significantly different from, the input values used to generate the data (Fig. \ref{fig:fig1}). The potential scale reduction factor for all variables was $<$ 1.01, and the effective sample size for all variables was $>$ 2409. The simulation ran in parallel on 3 virtual cores, 1 MCMC chain per core, and took approximately 2104 seconds.
+
+%% figure 1
+\begin{figure}
+  \includegraphics[width=\linewidth]{fig1.png}
+  \caption{Marginal posteriors from \emph{JAGS} (solid gray lines) and \emph{R-INLA} (dashed black lines), along with Maximum Liklihood estimates (black circles) and 95\% confidence intervals (horizontal black lines) from \emph{unmarked}.  True input values are represented by vertical black lines.}
+  \label{fig:fig1}
+\end{figure}
+%% end figure 1
+
+\subsection[Analysis with unmarked]{Analysis with \emph{unmarked}}
+Next, we prepared the simulated data for the \emph{unmarked} analysis, which involved slight modification of the data in the sim.data object. Here, the count data was changed from a 3-dimensional $I*J*K$ array to a 2-dimensional $I*K$ row by $J$ column matrix.  Each static site level variable was duplicated and stacked $K$ times to form a single-column vector. A column vector was created to identify each year in the stacked data. The site-year variable, x.p.3.mean, was transformed from 2-dimensional matrix to a single column vector. Reformatted variables were then assembled in an \emph{unmarked} data structure called an unmarked frame.
+
+\begin{verbatim}
+R> y.unmk <- sim.data$y1[ , , 1]
+R> for(i in 2:sim.data$n.years){
++    y.chunk <- sim.data$y1[ , , i]
++    y.unmk <- rbind(y.unmk, y.chunk)
++  } 
+R> x.lam.1.unmk <- rep(sim.data$x.lam.1, sim.data$n.years)
+R> x.lam.2.unmk <- rep(sim.data$x.lam.2, sim.data$n.years)
+R> yr.unmk <- rep(sim.data$yr, each = sim.data$n.sites)
+R> x.p.1.unmk <- rep(sim.data$x.p.1, sim.data$n.years)
+R> x.p.3.unmk <- c(sim.data$x.p.3.mean)
+R> site.covs.unmk <- data.frame(x.lam.1.unmk, x.lam.2.unmk, yr.unmk,
++                               x.p.1.unmk, x.p.3.unmk)
+R> unmk.data <- unmarkedFramePCount(y = y.unmk, siteCovs = site.covs.unmk)
+\end{verbatim}
+
+The first argument in the call to the pcount() function was the model formula, which specified the covariates for detection and then the covariates for abundance. This was followed by an argument identifying the appropriate unmarked frame, and the form of the mixture model, Negative Binomial-Binomial.
+
+\begin{verbatim}
+R> out.unmk <- pcount(~ x.p.1.unmk + x.p.3.unmk
++                     ~ x.lam.1.unmk + x.lam.2.unmk + yr.unmk,
++                       data = unmk.data, mixture = "NB")
+\end{verbatim}
+
+Maximum Likelihood estimates from the \emph{unmarked} analysis are also close to, and not significantly different from, input values (Fig. \ref{fig:fig1})  The \emph{unmarked} estimates were produced in approximately 77 seconds.
+
+\subsection[Analysis with R-INLA]{Analysis with \emph{R-INLA}}
+Next, we prepared data for \emph{R-INLA}, which uses data formats similar to those used by \emph{unmarked}. The object counts.and.count.covs is an \emph{R-INLA} object that includes an $I*K$ row by $J$ column matrix of counts. Next comes a value of 1, which is turned into an $I*K$ length vector of ones to specify that the model has a global intercept for $\lambda$. Finally, there are two $I*K$ length vector of values for the two static site covariates of abundance, where the vector of values for $I$ sites is stacked $K$ times. In addition to the counts.and.count.covs object, we also defined x.p.1.inla, which is a copy of x.lam.1.inla, and x.p.3.inla, which is the $I*K$ length vector corresponding with x.p.3.mean.
+
+\begin{verbatim}
+
+R> y.inla <- sim.data$y1[ , , 1]
+R> for(i in 2:sim.data$n.years){
++    y.chunk <- sim.data$y1[ , , i]
++    y.inla <- rbind(y.inla, y.chunk)
++  }
+R> x.lam.1.inla <- rep(sim.data$x.lam.1, sim.data$n.years)
+R> x.lam.2.inla <- rep(sim.data$x.lam.2, sim.data$n.years)
+R> yr.inla <- rep(sim.data$yr, each = sim.data$n.sites)
+R> x.p.1.inla <- rep(sim.data$x.p.1, sim.data$n.years)
+R> x.p.3.inla <- c(sim.data$x.p.3.mean)
+R> counts.and.count.covs <- inla.mdata(y.inla, 1, x.lam.1.inla, 
++                                      x.lam.2.inla, yr.inla)
+\end{verbatim}
+
+The call to the inla() function includes several components. First is the model statement. On the left side of the formula is the counts.and.count.covs object that includes the matrix of counts and the covariates related to $\lambda$.  On the right side of the formula is a 1 to specify a global intercept for $p$ and the two covariates for $p$.  Note that a wide range of random effects for $p$ could be added to the right side of the formula using the f() syntax \citep{Rue_Riebler_Sorbye_Illian_Simpson_Lindgren_2017}. The second argument describes the data, provided here as a list that corresponds with the model formula. Third is the likelihood family, which can take values of "nmix" for a Poisson-Binomial mixture and "nmixnb" for a Negative Binomial-Binomial mixture. The fourth (control.fixed, for detection parameters) and fifth (control.family, for abundance and overdispersion parameters) arguments specify the priors for the two model components. In this case, the priors are specified similarly to those in the \emph{JAGS} model, but a variety of other options are available. Several other characteristics of the analysis can be modified in the call to inla(). See \cite{Rue_Riebler_Sorbye_Illian_Simpson_Lindgren_2017} for details.
+
+\begin{verbatim}
+R> out.inla <- inla(counts.and.count.covs ~ 1 + x.p.1.inla + x.p.3.inla,
++           data = list(counts.and.count.covs = counts.and.count.covs,
++                       x.p.1.inla = x.p.1.inla, x.p.3.inla = x.p.3.inla),
++           family = "nmixnb",
++           control.fixed = list(mean = 0, mean.intercept = 0, prec = 0.01,
++                                prec.intercept = 0.01),
++           control.family = list(hyper = 
++                                  list(theta1 = list(param = c(0, 0.01)),
++                                       theta2 = list(param = c(0, 0.01)),
++                                       theta3 = list(param = c(0, 0.01)),
++                                       theta4 = list(param = c(0, 0.01)),
++                                       theta5 = list(prior = "flat",
++                                                     param = numeric()))))
+\end{verbatim}
+
+Mean parameter estimates from the \emph{R-INLA} model are also close to, and not significantly different from, input values (Fig. \ref{fig:fig1}). Full marginal posterior distributions from \emph{R-INLA} are shown in Fig. \ref{fig:fig1}. The analysis took approximately 6 seconds.
+
+\subsection[Example I summary]{Example I summary}
+Example I demonstrated basic use of \emph{R-INLA} and highlighted similarities and differences between it and two other commonly used approaches. In demonstrating the use of \emph{R-INLA}, we show that the input data format is not complicated, and that the formatting process can be accomplished with relatively few lines of code. Similarly, model specification uses a straightforward extension of the standard syntax in \emph{R}, where the count matrix and covariates for $\lambda$ are specified through an \emph{R-INLA} object included on the left side of the formula, and covariates for $p$ are specified on the right side of the formula. The data format and model specification syntax of \emph{R-INLA} are not too different from \emph{unmarked}, which are both considerably different from \emph{JAGS} and other \emph{BUGS}-oriented MCMC software.
+
+Regarding performance, \emph{R-INLA}, \emph{unmarked}, and \emph{JAGS} successfully extracted simulation input values. Fig. \ref{fig:fig1} shows marginal posterior distributions produced by \emph{JAGS} and \emph{R-INLA}, and estimates and 95\% confidence intervals from \emph{unmarked}. These results derive from data from one random manifestation of the input values. Thus, we do not expect the posterior distributions for the estimates to be centered at the input values, which would be expected if the simulation was repeated many times. However, we do expect the input values to fall somewhere within the posterior distributions and 95\% confidence limits, which is what occurs here.  Fig. \ref{fig:fig1} shows that, for similarly specified models, \emph{R-INLA} (dashed black lines) and \emph{JAGS} (solid gray lines) yielded practically identical marginal posterior distributions for model parameters.
+
+Where \emph{R-INLA}, \emph{unmarked}, and \emph{JAGS} differed was in computing time.  In this example, \emph{R-INLA} took 6 seconds, \emph{unmarked} took 77 seconds, and \emph{JAGS} took 2104 seconds to produce results. Thus, \emph{R-INLA} was approximately 10 times faster than \emph{unmarked} and 300 times faster than \emph{JAGS}. This was the case despite the fact that \emph{unmarked} produces ML estimates and the \emph{JAGS} model was run in parallel with each of three MCMC chains simulated on a separate virtual computing core. If parallel computing had not been used with \emph{JAGS}, processing the \emph{JAGS} model would have taken approximately twice as long. If MCMC simulations were run until an effective sample size of 6000 was reached, processing times would have doubled again.
+
+In sum, when compared to other tools, \emph{R-INLA} is relatively easy to implement and produces accurate estimates of Bayesian posteriors very quickly. Its utility depends on the degree to which the data generating process can be captured accurately in model specification. However, as mentioned above, certain N-mixture models can not be specified using \emph{R-INLA}. For the data in Example I, the count matrix was produced using a detection covariate that was averaged to the site-year level. This averaged covariate was subsequently specified in the model. But what happens when the site-survey-year covariate is an important component of the data generating process, and it can't be entered into the model in this form? This is the question explored in Example II.
+
+%% example 2
+\section[Example II]{Example II}
+\subsection[Goals]{Goals}
+In Example 2, we show the consequences of not being able to specify a site-survey-year covariate under a range of conditions. Specifically, we conducted a Monte Carlo simulation where, for each iteration, the count matrix for the analysis, y2, was generated with the data generating function described in 1.3, using the site-survey-year covariate x.p.3. The count data were then analyzed with two \emph{JAGS} models. One model incorporated an averaged site-survey x.p.3.mean as a covariate, such as in 2.1. The other model incorporated the full site-survey-year covariate instead. In each iteration we randomly varied the size of the effect for x.p.3. We expected that the simpler model, with x.p.3.mean, would yield biased estimates when the effect of x.p.3 was relatively large, and unbiased estimates when the effect was relatively small.
+
+\subsection[Analysis with JAGS]{Analysis with \emph{JAGS}}
+Given the long processing time associated with \emph{JAGS} models, we only ran 3000 iterations (no thinning, after 1000 adaptive and 1000 burn-in iterations) during each simulation. This number is not sufficient for drawing inference from marginal posteriors, but was sufficient for looking at qualitative patterns in posterior means. In each of the 50 iterations, the size of the effect for x.p.3 was drawn from a uniform distribution that ranged from -3 to 3. The results of the simulations are depicted in Fig. \ref{fig:fig2}.
+
+%% figure 2
+\begin{figure}
+  \includegraphics[width=\linewidth]{fig2.png}
+  \caption{Differences between the estimated posterior mean values and the true input parameter values as a function of the slope coefficient (effect size) for the site-survey-year covariate, x.p.3. Black circles and lines are from the model with the site-survey-year covariate, x.p.3, and gray circles and lines are from the model with an averaged site-year covariate, x.p.3.mean. Parameter name and true input value is given in the strip across the top of each panel.}
+  \label{fig:fig2}
+\end{figure}
+%% end figure 2
+
+\subsection[Example II summary]{Example II summary}
+As expected, biases in estimates of average abundance (log(lambda) intercept) and the effects of abundance covariates (log(lambda) covariate 1) increased with the effect strength of the site-survey-year covariate for $p$ (x.p.3;  Fig. \ref{fig:fig2}). When the effect size was small, with an absolute value less than 1, the bias was negligible. When the effect size was large, with an absolute value greater than 2, the bias was considerable (Fig. \ref{fig:fig2}). When interpreting the effect size, bear in mind that x.p.3 ranged from -0.5 to 0.5.
+
+%% example 3
+\section[Example III]{Example III}
+\subsection[Goals]{Goals}
+In Example III, we explore the performance of \emph{R-INLA} using real data -- a publicly available dataset on mallard duck abundance in Switzerland in 2002. By employing real data, we hoped to evaluate (1) the performance of \emph{R-INLA} using data that were not predictable by design and (2) the practical outcome of not being able to specify site-survey covariates in \emph{R-INLA}. The dataset is available as a demonstration dataset in \emph{unmarked}, so we compared the performance of \emph{R-INLA} with \emph{unmarked}, using the demonstration model and analysis settings, in Example III.
+
+\subsection[Analysis with unmarked]{Analysis with \emph{unmarked}}
+The \emph{unmarked} model was specified with linear effects of transect length (length), elevation (elev), and forest cover (forest) on abundance, and a linear effect and quadratic effect of sampling intensity (ivel) and sampling date (date), respectively, on detection. Both sampling intensity and sampling date were site-survey, or survey level covariates.
+
+\begin{verbatim}
+R> data("mallard") # get mallard data from unmarked package
+R> mallard.y.unmk <- mallard.y # format unmarked data
+R> mallard.site.unmk <- mallard.site
+R> mallard.obs.unmk <- mallard.obs
+R> mallardUMF <- unmarkedFramePCount(mallard.y.unmk, 
++                                    siteCovs = mallard.site.unmk,
++                                    obsCovs = mallard.obs.unmk)
+R> mallard.out.unmk <- pcount(~ ivel+ date + I(date^2)
++                             ~ length + elev + forest,
++                               mixture = "NB", mallardUMF, K=30) 
+\end{verbatim}
+
+\subsection[Analysis with R-INLA]{Analysis with \emph{R-INLA}}
+The \emph{R-INLA} model used a similar model structure. The only difference was that the \emph{R-INLA} model was not able to process site-survey covariates for detection, so averaged site level covariates were used, instead. These averages were attained using the rowMeans() function.
+
+\begin{verbatim}
+R> mallard.y.inla <- mallard.y # format inla data
+R> mallard.length.inla <- mallard.site[,2]
+R> mallard.elev.inla <- mallard.site[,1]
+R> mallard.forest.inla <- mallard.site[,3]
+R> mallard.ivel.inla <- rowMeans(mallard.obs$ivel, na.rm=T) # site average
+R> mallard.ivel.inla[is.na(mallard.ivel.inla)] <- 
++                                       mean(mallard.ivel.inla, na.rm = T)
+R> mallard.date.inla <- rowMeans(mallard.obs$date, na.rm=T) # site average
+R> mallard.date2.inla <- mallard.date.inla^2
+R> counts.and.count.covs <- inla.mdata(mallard.y.inla, 1, 
++                                      mallard.length.inla,
++                                      mallard.elev.inla, 
++                                      mallard.forest.inla)
+R> mallard.out.inla <- inla(counts.and.count.covs ~ 1 + mallard.ivel.inla +
++                           mallard.date.inla + mallard.date2.inla,
++      data = list(counts.and.count.covs = counts.and.count.covs,
++                           mallard.ivel.inla = mallard.ivel.inla,
++                           mallard.date.inla = mallard.date.inla,
++                           mallard.date2.inla = mallard.date2.inla),
++      family = "nmixnb",
++      control.fixed = list(mean = 0, mean.intercept = 0, prec = 0.01,
++                               prec.intercept = 0.01),
++      control.family = list(hyper = list(theta1 = list(param = c(0, 0.01)),
++                                    theta2 = list(param = c(0, 0.01)),
++                                    theta3 = list(param = c(0, 0.01)),
++                                    theta4 = list(param = c(0, 0.01)),
++                                    theta5 = list(prior = "flat",
++                                                  param = numeric()))))
+\end{verbatim}
+
+The 95\% credible intervals from the \emph{R-INLA} model overlapped broadly with the 95\% confidence intervals from the \emph{unmarked} model, so parameter estimates were not significantly different from one another (Fig. \ref{fig:fig3}). Also, the parameters with estimates significantly different from zero were the same regardless of technique (Fig. \ref{fig:fig3}). Using both techniques, detection decreased linearly as the season progressed, and abundance decreased as linear functions of increasing forest cover and elevation gain. Parameter estimates and biological conclusions were similar despite the fact that site-survey detection covariates were used for \emph{unmarked} and site-averaged detection covariates were used for \emph{R-INLA}. Note that both approaches estimated moderate effects of detection covariates which, according to the results in Example II, would indicate that other parameter estimates were not substantially biased. These results may have been different with a different real dataset, where detection covariates had very strong effects.
+
+%% figure 3
+\begin{figure}
+  \includegraphics[width=\linewidth]{fig3.png}
+  \caption{Estimates and 95\% confidence intervals from \emph{unmarked} (gray circles and lines) and posterior means and 95\% credible intervals from \emph{R-INLA} (black lines) from an N-mixture model of mallard duck abundance.  The \emph{unmarked} model included site-survey covariates for survey effort and survey date, while the \emph{R-INLA} model included site-averaged versions.  A value of zero is depicted by the vertical gray line.}
+  \label{fig:fig3}
+\end{figure}
+%% end figure 3
+
+%% discussion
+\section[Discussion]{Discussion}
+The purpose of this study was to demonstrate the use of the \emph{R-INLA} package \citep{Rue_Riebler_Sorbye_Illian_Simpson_Lindgren_2017} to analyze N-mixture models and to compare performance of \emph{R-INLA} to two other common approaches, \emph{JAGS} \citep{plummer2003jags,Lunn_Jackson_Best_Thomas_Spiegelhalter_2012}, via the \emph{runjags} package \citep{Denwood_2016}, which employs MCMC methods and allows Bayesian inference, and the \emph{unmarked} package \citep{Fiske_Chandler_others_2011}, which uses Maximum Likelihood and allows frequentist inference.
+
+Results showed that \emph{R-INLA} can be a complementary tool in the wildlife biologist's analytical tool kit. Strengths of \emph{R-INLA} include Bayesian inference, based on highly accurate approximations of posterior distributions, which are derived over 300 times faster than MCMC methods, where models are specified using a syntax that should be familiar to R users, and where data are formatted in a straightforward way with relatively few lines of code. The straightforward model syntax and data format could help remove  barriers to adoption of N-mixture models for biologists who are not committed to learning the \emph{BUGS} syntax. The substantial decrease in computation time should facilitate use of a wider variety of model and variable selection techniques (e.g., cross validation and model averaging), ones that are not commonly used in an MCMC context due to practical issues related to computing time \citep{Kery_Schaub_2011}.
+
+Limitations of \emph{R-INLA} are mainly related to the more restricted set of N-mixture models that can be specified. Of the approaches explored here, \emph{BUGS}-based approaches allow users ultimate flexibility in specifying models. For example, with \emph{JAGS}, site-survey-year covariates for detection are possible, multiple types of mixed distributions are available \citep{Joseph_Elkin_Martin_Possingham_2009,Martin_Royle_Mackenzie_Edwards_Kery_Gardner_2011}, and a variety of random effects can be specified for both $\lambda$ and $p$ \citep{Kery_Schaub_2011}. In comparison, the current version of \emph{R-INLA} does not handle site-survey covariates, employs only Poisson-Binomial and Negative Binomial-Binomial mixtures, and handles random effects (exchangeable, spatially and temporally structured) for $p$ only. In cases where site-survey covariates are particularly important and not otherwise controlled in the sampling design, \emph{R-INLA} will not be the appropriate tool (Fig. \ref{fig:fig2}).
+
+When compared to \emph{unmarked}, the \emph{R-INLA} approach is similar in regards to model syntax and data format. The approaches are also similar in that both yield results much faster than MCMC. The two approaches differ in that \emph{R-INLA} is roughly 10 times faster than \emph{unmarked}, likely due to the different approach used to compute model likelihoods (see Appendix A). They also differ in that \emph{unmarked} can accommodate site-survey covariates and can analyze dynamic N-mixture models \citep{Chandler_Royle_King_2011, Dail_Madsen_2011}.
+
+In conclusion, \emph{JAGS} (and \emph{WinBUGS}, \emph{OpenBUGS}), \emph{unmarked}, and \emph{R-INLA} all allow users to analyze N-mixture models for estimating wildlife abundance while accounting for imperfect detection. Each method has its strengths and limitations. \emph{R-INLA} appears to be an attractive option when survey level covariates are not essential, familiar model syntax and data format are desired, fast computing time is needed, and Bayesian inference is preferred.
+
+%% references
+\bibliography{bibliog}
+
+
+%% appendix
+\appendix
+\section{Recursive computations of the "nmix" likelihood}
+The likelihood for the simplest case is
+\begin{displaymath}
+\text{Probability}(y) = \sum_{n = y}^{\infty}
+\text{Poisson}(n ; \lambda) \;\times\; \text{Binomial}(y;  n, p)
+\end{displaymath}
+where $\text{Poisson}(n; \lambda)$ is the density for the Poisson distribution with a mean $\lambda$, $\lambda^{n}\frac{\exp(-\lambda)}{n!}$, and $\text{Binomial}(y; n, p)$ is the density for the Binomial distribution with $n$ trials and probability $p$, ${n \choose y} p^{y}(1-p)^{n-p}$. Although the likelhood can be computed directly when replacing the infinite limit with a finite value, we will demonstrate here that we can easily evaluate it using a recursive algorithm that is both faster and more numerical stable. The same idea is also applicable to the Negative Binomial case, and the case where we have replicated observations of the same $n$. We leave it to the reader to derive these straight forward extensions.
+
+The key observation is that both the Poisson and the Binomial distribution can be evaluated recursively in $n$,
+\begin{displaymath}
+\text{Poisson}(n; \lambda) = \text{Poisson}(n-1; \lambda) \frac{\lambda}{n}
+\end{displaymath}
+and
+\begin{displaymath}
+\text{Binomial}(y; n, p) = \text{Binomial}(y; n-1, p) \frac{n}{n-y}(1-p),
+\end{displaymath}
+and then also for the Poisson-Binomial product
+\begin{displaymath}
+\text{Poisson}(n ; \lambda) \; \text{Binomial}(y;  n, p)
+=
+\text{Poisson}(n-1; \lambda) \; \text{Binomial}(y; n-1, p)
+\frac{\lambda}{n-y}(1-p).
+\end{displaymath}
+If we define $f_i = \lambda(1-p)/i$ for $i=1, 2, \ldots$, we can make use of this recursive form to express the likelihood with a finite upper limit as
+\begin{eqnarray}
+\text{Probability}(y) &=& \sum_{n = y}^{n_{\text{max}}}
+\text{Poisson}(n ; \lambda)\;
+\text{Binomial}(y;  n, p) \nonumber\\
+&=& \text{Poisson}(y; \lambda)\; \text{Binomial}(y; y, p)
+\Big\{ 1 + f_1 + f_1f_2 +
+\ldots
++f_1\cdots f_{n_\text{max}}
+\Big\} \nonumber\\
+&=& \text{Poisson}(y; \lambda)\; \text{Binomial}(y; y, p)
+\Big\{ 1 + f_1(1+f_2(1+f_3(1+ \dots)))\Big\}\nonumber
+\end{eqnarray}
+The log-likelihood can then be evaluated using the following simple \emph{R}-code.
+\begin{verbatim}
+	R> fac <- 1; ff <- lambda * (1-p)
+	R> for(i in (n.max - y):1){
+		+    fac <- 1 + fac * ff / i
+		+  } 
+	R> log.L <- dpois(y, lambda, log = TRUE) + dbinom(y, y, p, log = TRUE) + 
+	+           log(fac)
+\end{verbatim}
+Since this evaluation is recursive in decreasing $n$, we have to choose the upper limit $n_\text{max}$ up-front, for example as an integer larger than $y$ so that $\frac{\lambda (1-p)}{n_\text{max}-y}$ is small. Note that we are computing \texttt{fac} starting with the smallest contributions, which are more numerically stable.
+
+
+
+\end{document}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+

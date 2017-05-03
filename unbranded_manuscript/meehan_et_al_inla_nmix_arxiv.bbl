@@ -1,0 +1,194 @@
+\begin{thebibliography}{}
+
+\bibitem[Blangiardo and Cameletti, 2015]{Blangiardo_Cameletti_2015}
+Blangiardo, M. and Cameletti, M. (2015).
+\newblock {\em Spatial and Spatio-Temporal Bayesian Models with \pkg{R-INLA}}.
+\newblock John Wiley \& Sons, West Sussex, UK.
+
+\bibitem[Chandler et~al., 2011]{Chandler_Royle_King_2011}
+Chandler, R.~B., Royle, J.~A., and King, D.~I. (2011).
+\newblock Inference about density and temporary emigration in unmarked
+  populations.
+\newblock {\em Ecology}, 92(7):1429--1435.
+
+\bibitem[Dail and Madsen, 2011]{Dail_Madsen_2011}
+Dail, D. and Madsen, L. (2011).
+\newblock Models for estimating abundance from repeated counts of an open
+  metapopulation.
+\newblock {\em Biometrics}, 67(2):577--587.
+
+\bibitem[Denes et~al., 2015]{Denes_Silveira_Beissinger_2015}
+Denes, F.~V., Silveira, L.~F., and Beissinger, S.~R. (2015).
+\newblock Estimating abundance of unmarked animal populations: Accounting for
+  imperfect detection and other sources of zero inflation.
+\newblock {\em Methods in Ecology and Evolution}, 6(5):543--556.
+
+\bibitem[Denwood, 2016]{Denwood_2016}
+Denwood, M.~J. (2016).
+\newblock \emph{runjags}: An \emph{R} package providing interface utilities,
+  model templates, parallel computing methods and additional distributions for
+  mcmc models in \emph{JAGS}.
+\newblock {\em Journal of Statistical Software}, 71(9).
+
+\bibitem[Dodd and Dorazio, 2004]{Dodd_Dorazio_2004}
+Dodd, C.~K. and Dorazio, R.~M. (2004).
+\newblock Using counts to simultaneously estimate abundance and detection
+  probabilities in a salamander community.
+\newblock {\em Herpetologica}, 60(4):468--478.
+
+\bibitem[Fiske et~al., 2011]{Fiske_Chandler_others_2011}
+Fiske, I., Chandler, R., et~al. (2011).
+\newblock \emph{unmarked}: An \emph{R} package for fitting hierarchical models
+  of wildlife occurrence and abundance.
+\newblock {\em Journal of Statistical Software}, 43(10):1--23.
+
+\bibitem[Gong and Flegal, 2016]{Gong_Flegal_2016}
+Gong, L. and Flegal, J.~M. (2016).
+\newblock A practical sequential stopping rule for high-dimensional markov
+  chain monte carlo.
+\newblock {\em Journal of Computational and Graphical Statistics},
+  25(3):684--700.
+
+\bibitem[Joseph et~al., 2009]{Joseph_Elkin_Martin_Possingham_2009}
+Joseph, L.~N., Elkin, C., Martin, T.~G., and Possingham, H.~P. (2009).
+\newblock Modeling abundance using n-mixture models: The importance of
+  considering ecological mechanisms.
+\newblock {\em Ecological Applications}, 19(3):631--642.
+
+\bibitem[Kery, 2010]{Kery_2010}
+Kery, M. (2010).
+\newblock {\em Introduction to \emph{WinBUGS} for Ecologists: Bayesian Approach
+  to Regression, ANOVA, Mixed Models and Related Analyses}.
+\newblock Academic Press, Burlington, MA USA.
+
+\bibitem[Kery et~al.,
+  2009]{Kery_Dorazio_Soldaat_Van_Strien_Zuiderwijk_Royle_2009}
+Kery, M., Dorazio, R.~M., Soldaat, L., Van~Strien, A., Zuiderwijk, A., and
+  Royle, J.~A. (2009).
+\newblock Trend estimation in populations with imperfect detection.
+\newblock {\em Journal of Applied Ecology}, 46(6):1163--1172.
+
+\bibitem[Kery and Royle, 2010]{Kery_Royle_2010}
+Kery, M. and Royle, J.~A. (2010).
+\newblock Hierarchical modelling and estimation of abundance and population
+  trends in metapopulation designs.
+\newblock {\em Journal of Animal Ecology}, 79(2):453--461.
+
+\bibitem[Kery and Royle, 2015]{Kery_Royle_2015}
+Kery, M. and Royle, J.~A. (2015).
+\newblock {\em Applied Hierarchical Modeling in Ecology: Analysis of
+  Distribution, Abundance and Species Richness in \emph{R} and \emph{BUGS}:
+  Volume 1: Prelude and Static Models}.
+\newblock Academic Press, Burlington, MA USA.
+
+\bibitem[Kery et~al., 2005]{Kery_Royle_Schmid_2005}
+Kery, M., Royle, J.~A., and Schmid, H. (2005).
+\newblock Modeling avian abundance from replicated counts using binomial
+  mixture models.
+\newblock {\em Ecological Applications}, 15(4):1450--1461.
+
+\bibitem[Kery and Schaub, 2011]{Kery_Schaub_2011}
+Kery, M. and Schaub, M. (2011).
+\newblock {\em Bayesian Population Analysis using \emph{WinBUGS}: A
+  Hierarchical Perspective}.
+\newblock Academic Press, Burlington, MA USA.
+
+\bibitem[Lindgren and Rue, 2015]{Lindgren_Rue_2015}
+Lindgren, F. and Rue, H. (2015).
+\newblock Bayesian spatial modelling with r-inla.
+\newblock {\em Journal of Statistical Software}, 63(19):1--25.
+
+\bibitem[Lindgren et~al., 2011]{Lindgren_Rue_Lindstrom_2011}
+Lindgren, F., Rue, H., and Lindstrom, J. (2011).
+\newblock An explicit link between gaussian fields and gaussian markov random
+  fields: The stochastic partial differential equation approach (with
+  discussion).
+\newblock {\em Journal of the Royal Statistical Society B}, 73(4):423--498.
+
+\bibitem[Lunn et~al., 2012]{Lunn_Jackson_Best_Thomas_Spiegelhalter_2012}
+Lunn, D., Jackson, C., Best, N., Thomas, A., and Spiegelhalter, D. (2012).
+\newblock {\em The \emph{Bugs} Book: A Practical Introduction to Bayesian
+  Analysis}.
+\newblock CRC press, Boca Raton, FL USA.
+
+\bibitem[Martin et~al., 2011]{Martin_Royle_Mackenzie_Edwards_Kery_Gardner_2011}
+Martin, J., Royle, J.~A., Mackenzie, D.~I., Edwards, H.~H., Kery, M., and
+  Gardner, B. (2011).
+\newblock Accounting for non-independent detection when estimating abundance of
+  organisms with a bayesian approach.
+\newblock {\em Methods in Ecology and Evolution}, 2(6):595--601.
+
+\bibitem[Martins et~al., 2013]{Martins_Simpson_Lindgren_Rue_2013}
+Martins, T.~G., Simpson, D., Lindgren, F., and Rue, H. (2013).
+\newblock Bayesian computing with {INLA}: {N}ew features.
+\newblock {\em Computational Statistics and Data Analysis}, 67:68--83.
+
+\bibitem[O'Donnell et~al., 2015]{O'Donnell_Thompson_III_Semlitsch_2015}
+O'Donnell, K.~M., Thompson, F.~R., and Semlitsch, R.~D. (2015).
+\newblock Partitioning detectability components in populations subject to
+  within-season temporary emigration using binomial mixture models.
+\newblock {\em PLoS ONE}, 10(3):e0117216.
+
+\bibitem[Plummer, 2003]{plummer2003jags}
+Plummer, M. (2003).
+\newblock Jags: A program for analysis of bayesian graphical models using gibbs
+  sampling.
+\newblock In Hornik, K., Leisch, F., and Zeileis, A., editors, {\em Proceedings
+  of the 3rd International Workshop on Distributed Statistical Computing},
+  pages 1--10, Vienna, Austria.
+
+\bibitem[Pollock et~al.,
+  2002]{Pollock_Nichols_Simons_Farnsworth_Bailey_Sauer_2002}
+Pollock, K.~H., Nichols, J.~D., Simons, T.~R., Farnsworth, G.~L., Bailey,
+  L.~L., and Sauer, J.~R. (2002).
+\newblock Large scale wildlife monitoring studies: Statistical methods for
+  design and analysis.
+\newblock {\em Environmetrics}, 13(2):105--119.
+
+\bibitem[Royle, 2004]{Royle_2004}
+Royle, J.~A. (2004).
+\newblock N-mixture models for estimating population size from spatially
+  replicated counts.
+\newblock {\em Biometrics}, 60(1):108--115.
+
+\bibitem[Royle and Dorazio, 2008]{Royle_Dorazio_2008}
+Royle, J.~A. and Dorazio, R.~M. (2008).
+\newblock {\em Hierarchical Modeling and Inference in Ecology: the Analysis of
+  Data from Populations, Metapopulations, and Communities}.
+\newblock Academic Press, Burlington, MA USA.
+
+\bibitem[Royle and Nichols, 2003]{Royle_Nichols_2003}
+Royle, J.~A. and Nichols, J.~D. (2003).
+\newblock Estimating abundance from repeated presence-absence data or point
+  counts.
+\newblock {\em Ecology}, 84(3):777--790.
+
+\bibitem[Rue et~al., 2009]{Rue_Martino_Chopin_2009}
+Rue, H., Martino, S., and Chopin, N. (2009).
+\newblock Approximate bayesian inference for latent gaussian models by using
+  integrated nested laplace approximations.
+\newblock {\em Journal of the Royal Statistical Society B}, 71(2):319--392.
+
+\bibitem[Rue et~al., 2017]{Rue_Riebler_Sorbye_Illian_Simpson_Lindgren_2017}
+Rue, H., Riebler, A., S{\o}rbye, S.~H., Illian, J.~B., Simpson, D.~P., and
+  Lindgren, F.~K. (2017).
+\newblock Bayesian computing with {INLA}: {A} review.
+\newblock {\em Annual Reviews of Statistics and Its Applications},
+  4(March):395--421.
+
+\bibitem[Team, 2016]{R_Core_Team_2016}
+Team, R.~C. (2016).
+\newblock \emph{R}: A language and environment for statistical computing.
+
+\bibitem[Wenger and Freeman, 2008]{Wenger_Freeman_2008}
+Wenger, S.~J. and Freeman, M.~C. (2008).
+\newblock Estimating species occurrence, abundance, and detection probability
+  using zero-inflated distributions.
+\newblock {\em Ecology}, 89(10):2953--2959.
+
+\bibitem[Yoccoz et~al., 2001]{Yoccoz_Nichols_Boulinier_2001}
+Yoccoz, N.~G., Nichols, J.~D., and Boulinier, T. (2001).
+\newblock Monitoring of biological diversity in space and time.
+\newblock {\em Trends in Ecology and Evolution}, 16(8):446--453.
+
+\end{thebibliography}
